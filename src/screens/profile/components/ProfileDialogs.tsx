@@ -73,7 +73,7 @@ export const ProfileDialogs = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-email">Email (optional)</Label>
+              <Label htmlFor="edit-email">Email</Label>
               <Input
                 id="edit-email"
                 type="email"

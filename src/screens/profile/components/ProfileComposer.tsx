@@ -1,26 +1,42 @@
 'use client'
 
-import type { ChangeEvent } from 'react'
-import { Image as ImageIcon, Play, Video as VideoIcon, X } from 'lucide-react'
+import type { RefObject } from 'react'
+import { BarChart3, FileText, HelpCircle, PenLine } from 'lucide-react'
 
-import type { ProfileComposerProps } from '@/screens/profile/profile-components.types'
-import { Alert, AlertDescription, AlertTitle } from '@/ui/widgets/alert'
-import { Button } from '@/ui/widgets/button'
+import type { ComposerType } from '@/screens/profile/profile-components.types'
+import type { FeedItem } from '@/shared/types/profile'
+import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/widgets/card'
-import { Textarea } from '@/ui/widgets/textarea'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/widgets/tabs'
+import { ComposerArticleForm } from '@/screens/profile/components/composer/ComposerArticleForm'
+import { ComposerPollForm } from '@/screens/profile/components/composer/ComposerPollForm'
+import { ComposerPostForm } from '@/screens/profile/components/composer/ComposerPostForm'
+import { ComposerQuizForm } from '@/screens/profile/components/composer/ComposerQuizForm'
+
+interface ProfileComposerProps {
+  activeType: ComposerType
+  composerRef: RefObject<HTMLDivElement | null>
+  onTypeChange: (value: ComposerType) => void
+  onItemCreated: (item: FeedItem) => void
+}
+
+const composerTabs: Array<{
+  value: ComposerType
+  label: string
+  Icon: typeof PenLine
+  colorClass: string
+}> = [
+  { value: 'post', label: 'Пост', Icon: PenLine, colorClass: 'text-blue-600' },
+  { value: 'poll', label: 'Опрос', Icon: BarChart3, colorClass: 'text-orange-500' },
+  { value: 'quiz', label: 'Викторина', Icon: HelpCircle, colorClass: 'text-violet-500' },
+  { value: 'article', label: 'Статья', Icon: FileText, colorClass: 'text-emerald-600' },
+]
 
 export const ProfileComposer = ({
-  composerText,
-  composerError,
-  composerLoading,
-  attachments,
-  imageInputRef,
-  videoInputRef,
+  activeType,
   composerRef,
-  onTextChange,
-  onAddFiles,
-  onRemoveAttachment,
-  onSubmit,
+  onTypeChange,
+  onItemCreated,
 }: ProfileComposerProps) => {
   return (
     <Card ref={composerRef}>
@@ -28,109 +44,33 @@ export const ProfileComposer = ({
         <CardTitle className="text-base">Создать пост</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {composerError ? (
-          <Alert variant="destructive">
-            <AlertTitle>Ошибка</AlertTitle>
-            <AlertDescription>{composerError}</AlertDescription>
-          </Alert>
-        ) : null}
-        <Textarea
-          placeholder="Что нового?"
-          value={composerText}
-          onChange={(event) => onTextChange(event.target.value)}
-          disabled={composerLoading}
-        />
-        <div className="flex flex-wrap items-center gap-3">
-          <input
-            ref={imageInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              onAddFiles(event.target.files, 'image')
-            }
-            disabled={composerLoading}
-          />
-          <input
-            ref={videoInputRef}
-            type="file"
-            accept="video/*"
-            multiple
-            className="hidden"
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              onAddFiles(event.target.files, 'video')
-            }
-            disabled={composerLoading}
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => imageInputRef.current?.click()}
-            disabled={composerLoading}
-          >
-            <ImageIcon className="h-4 w-4" />
-            Фото
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => videoInputRef.current?.click()}
-            disabled={composerLoading}
-          >
-            <VideoIcon className="h-4 w-4" />
-            Видео
-          </Button>
-          <div className="ml-auto">
-            <Button size="sm" onClick={onSubmit} disabled={composerLoading}>
-              {composerLoading ? (
-                <>
-                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                  Публикуем...
-                </>
-              ) : (
-                'Опубликовать'
-              )}
-            </Button>
-          </div>
-        </div>
-        {attachments.length ? (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {attachments.map((item) => (
-              <div
-                key={item.id}
-                className="group relative aspect-square overflow-hidden rounded-lg border border-border"
+        <Tabs value={activeType} onValueChange={(value) => onTypeChange(value as ComposerType)}>
+          <TabsList className="grid h-auto w-full grid-cols-4 gap-1 rounded-lg bg-muted p-1">
+            {composerTabs.map(({ value, label, Icon, colorClass }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="flex min-w-0 flex-col items-center justify-center gap-1 px-2 py-2 text-[11px] font-medium text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:shadow-none sm:flex-row sm:text-sm"
+                aria-label={label}
               >
-                {item.type === 'image' ? (
-                  <img
-                    src={item.previewUrl}
-                    alt="Preview"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <>
-                    <video
-                      className="h-full w-full object-cover"
-                      muted
-                      playsInline
-                      src={item.previewUrl}
-                    />
-                    <div className="absolute inset-0 bg-black/40" />
-                    <Play className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 text-white" />
-                  </>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-1 top-1 h-7 w-7 rounded-full bg-white/80 opacity-0 transition group-hover:opacity-100"
-                  onClick={() => onRemoveAttachment(item.id)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+                <Icon className={cn('h-4 w-4', colorClass)} />
+                <span className="sr-only">{label}</span>
+              </TabsTrigger>
             ))}
-          </div>
-        ) : null}
+          </TabsList>
+          <TabsContent value="post" className="mt-4">
+            <ComposerPostForm onCreated={onItemCreated} />
+          </TabsContent>
+          <TabsContent value="poll" className="mt-4">
+            <ComposerPollForm onCreated={onItemCreated} />
+          </TabsContent>
+          <TabsContent value="quiz" className="mt-4">
+            <ComposerQuizForm onCreated={onItemCreated} />
+          </TabsContent>
+          <TabsContent value="article" className="mt-4">
+            <ComposerArticleForm onCreated={onItemCreated} />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   )

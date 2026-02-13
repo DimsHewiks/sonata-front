@@ -1,13 +1,13 @@
-import type { RefObject } from 'react'
-
 import type {
-  ComposerAttachment,
-  FeedPost,
+  FeedArticle,
+  FeedItem,
   MediaItem,
   MediaType,
   PostMedia,
   PrivacySettings,
 } from '@/shared/types/profile'
+
+export type ComposerType = 'post' | 'poll' | 'quiz' | 'article'
 
 export interface ProfileHeaderProps {
   displayName: string
@@ -33,27 +33,18 @@ export interface ProfileMediaCardProps {
   onCreatePost: () => void
 }
 
-export interface ProfileComposerProps {
-  composerText: string
-  composerError: string | null
-  composerLoading: boolean
-  attachments: ComposerAttachment[]
-  imageInputRef: RefObject<HTMLInputElement>
-  videoInputRef: RefObject<HTMLInputElement>
-  composerRef: RefObject<HTMLDivElement>
-  onTextChange: (value: string) => void
-  onAddFiles: (files: FileList | null, type: MediaType) => void
-  onRemoveAttachment: (id: string) => void
-  onSubmit: () => void
-}
-
 export interface ProfileFeedProps {
-  posts: FeedPost[]
+  items: FeedItem[]
   likedPosts: Record<string, boolean>
   onToggleLike: (postId: string) => void
-  onDeletePost: (postId: string) => void
+  onDeleteItem: (postId: string) => Promise<void>
+  onCommentCountChange: (postId: string, delta: number) => void
   onSelectMedia: (item: PostMedia) => void
   onCreateFirstPost: () => void
+  onVotePoll: (pollId: string, optionIds: string[]) => void
+  onAnswerQuiz: (quizId: string, optionId: string) => void
+  onOpenArticle: (article: FeedArticle) => void
+  quizAnswerLoadingIds: Record<string, boolean>
 }
 
 export interface MediaDialogsProps {

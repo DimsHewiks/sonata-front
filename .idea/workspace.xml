@@ -4,18 +4,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="374c1823-6513-41c7-a807-4c04cdbf2098" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+    <list default="true" id="374c1823-6513-41c7-a807-4c04cdbf2098" name="Changes" comment="first">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.dockerignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/.idea/Sonata.iml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.idea/Sonata.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/Docker/mariadb/init.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Docker/mariadb/init.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/Docker/nginx/app.conf" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Docker/nginx/app.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/Docker/php/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Docker/php/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/backend/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/api/Auth/Controllers/AuthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api/Auth/Controllers/AuthController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/Auth/DTOs/Request/RegistDTO.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/Auth/Repositories/AuthRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api/Auth/Repositories/AuthRepository.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/Auth/Services/AuthService.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api/Auth/Services/AuthService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/api/Common/Middleware/AuthMiddleware.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api/Common/Middleware/AuthMiddleware.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/auth/AuthPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/auth/AuthPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/ProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/ProfilePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/MediaDialogs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/MediaDialogs.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileComposer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileComposer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileDialogs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileDialogs.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileFeed.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileFeed.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileMediaCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileMediaCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/profile-components.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/profile-components.types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/api/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/api/client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/types/profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/types/profile.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,10 +41,11 @@
     <execution />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="153" />
+    <option name="cachedIndexableFilesCount" value="179" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="SYNC" />
   </component>
   <component name="McpProjectServerCommands">
     <commands />
@@ -75,29 +90,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "master",
-    "js.debugger.nextJs.config.created.client": "true",
-    "js.debugger.nextJs.config.created.server": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/home/dimshewik/WebstormProjects/SonataFront",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "/home/dimshewik/WebstormProjects/SonataFront/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;js.debugger.nextJs.config.created.client&quot;: &quot;true&quot;,
+    &quot;js.debugger.nextJs.config.created.server&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/dimshewik/WebstormProjects/SonataFront&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/dimshewik/WebstormProjects/SonataFront/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="npm.Next.js: server-side">
     <configuration name="Next.js: debug client-side" type="JavascriptDebugType" uri="http://localhost:3000/">
       <method v="2" />
@@ -129,11 +145,25 @@
       <option name="presentableId" value="Default" />
       <updated>1770460671813</updated>
       <workItem from="1770460680732" duration="184000" />
-      <workItem from="1770787818226" duration="1990000" />
+      <workItem from="1770787818226" duration="3916000" />
+      <workItem from="1770897014243" duration="12802000" />
     </task>
+    <task id="LOCAL-00001" summary="first">
+      <option name="closed" value="true" />
+      <created>1770790244917</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1770790244917</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="first" />
+    <option name="LAST_COMMIT_MESSAGE" value="first" />
   </component>
 </project>

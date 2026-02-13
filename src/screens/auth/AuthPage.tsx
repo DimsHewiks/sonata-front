@@ -141,7 +141,7 @@ export const AuthPage = () => {
         <CardHeader className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-sm font-semibold text-primary">
-              S
+
             </div>
             <div className="text-lg font-semibold">Sonata</div>
           </div>
