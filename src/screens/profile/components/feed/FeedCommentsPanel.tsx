@@ -17,6 +17,7 @@ import { ScrollArea } from '@/ui/widgets/scroll-area'
 import { Separator } from '@/ui/widgets/separator'
 import { Skeleton } from '@/ui/widgets/skeleton'
 import { Textarea } from '@/ui/widgets/textarea'
+import { EmojiPickerPopover } from '@/ui/widgets/emoji-picker'
 import { FeedCommentItem } from '@/screens/profile/components/feed/FeedCommentItem'
 
 interface ReplyTarget {
@@ -47,6 +48,7 @@ interface FeedCommentsPanelProps {
   onOpenFiles: () => void
   onFilesChange: (event: ChangeEvent<HTMLInputElement>) => void
   onSubmit: () => void
+  onInsertEmoji: (emoji: string) => void
   onReply: (comment: FeedComment) => void
   onDelete: (commentId: string) => void
   onToggleReplies: (commentId: string) => void
@@ -84,6 +86,7 @@ export const FeedCommentsPanel = ({
   onOpenFiles,
   onFilesChange,
   onSubmit,
+  onInsertEmoji,
   onReply,
   onDelete,
   onToggleReplies,
@@ -209,6 +212,7 @@ export const FeedCommentsPanel = ({
             >
               Файлы
             </Button>
+            <EmojiPickerPopover onEmojiSelect={onInsertEmoji} disabled={submitLoading} />
             {formFilesCount > 0 ? (
               <span className="text-xs text-muted-foreground">{formFilesCount} файл(ов)</span>
             ) : null}

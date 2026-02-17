@@ -3,13 +3,14 @@
 import type { ForwardedRef } from 'react'
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
-import type { AuthStatus } from '@/features/auth/types'
+import type { AuthStatus, ProfileResponse } from '@/features/auth/types'
 import { feedApi } from '@/features/feed/api'
 import type { FeedArticle, FeedItem, PostMedia } from '@/shared/types/profile'
 import type { ComposerType } from '@/screens/profile/profile-components.types'
 import type { QuizAnswerResult } from '@/features/feed/types'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import { Alert, AlertDescription, AlertTitle } from '@/ui/widgets/alert'
+import { Skeleton } from '@/ui/widgets/skeleton'
 import { ArticleDialog } from '@/screens/profile/components/ArticleDialog'
 import { MediaDialogs } from '@/screens/profile/components/MediaDialogs'
 import { ProfileComposer } from '@/screens/profile/components/ProfileComposer'
@@ -21,13 +22,40 @@ export interface ProfileWallSectionHandle {
 
 interface ProfileWallSectionProps {
   status: AuthStatus
+  currentUser: ProfileResponse
+}
+
+const FeedSkeleton = () => {
+  return (
+    <div className="space-y-4">
+      {[0, 1, 2].map((index) => (
+        <div key={index} className="rounded-xl border border-border p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+            <Skeleton className="h-8 w-8" />
+          </div>
+          <div className="mt-4 space-y-2">
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-4/6" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export const ProfileWallSection = forwardRef(
-  ({ status }: ProfileWallSectionProps, ref: ForwardedRef<ProfileWallSectionHandle>) => {
+  ({ status, currentUser }: ProfileWallSectionProps, ref: ForwardedRef<ProfileWallSectionHandle>) => {
     const composerRef = useRef<HTMLDivElement | null>(null)
     const [composerType, setComposerType] = useState<ComposerType>('post')
     const [feedError, setFeedError] = useState<string | null>(null)
+    const [feedLoading, setFeedLoading] = useState(false)
     const [feedItems, setFeedItems] = useState<FeedItem[]>([])
     const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({})
     const [selectedPostMedia, setSelectedPostMedia] = useState<PostMedia | null>(null)
@@ -44,12 +72,14 @@ export const ProfileWallSection = forwardRef(
     useEffect(() => {
       if (status !== 'authenticated') {
         setFeedError(null)
+        setFeedLoading(false)
         setFeedItems([])
         return
       }
 
       let isActive = true
 
+      setFeedLoading(true)
       setFeedError(null)
 
       feedApi
@@ -70,6 +100,7 @@ export const ProfileWallSection = forwardRef(
           if (!isActive) {
             return
           }
+          setFeedLoading(false)
         })
 
       return () => {
@@ -79,6 +110,9 @@ export const ProfileWallSection = forwardRef(
 
     const handleCreateItem = (item: FeedItem) => {
       setFeedItems((prev) => [item, ...prev])
+      if (typeof window !== 'undefined' && item.type === 'post') {
+        window.dispatchEvent(new Event('profile:media-refresh'))
+      }
     }
 
     const handleDeleteItem = async (itemId: string) => {
@@ -235,19 +269,24 @@ export const ProfileWallSection = forwardRef(
           </Alert>
         ) : null}
 
-        <ProfileFeed
-          items={feedItems}
-          likedPosts={likedPosts}
-          onToggleLike={handleToggleLike}
-          onDeleteItem={handleDeleteItem}
-          onCommentCountChange={handleCommentCountChange}
-          onSelectMedia={setSelectedPostMedia}
-          onCreateFirstPost={focusComposer}
-          onVotePoll={handleVotePoll}
-          onAnswerQuiz={handleAnswerQuiz}
-          onOpenArticle={setSelectedArticle}
-          quizAnswerLoadingIds={quizAnswerLoadingIds}
-        />
+        {feedLoading ? (
+          <FeedSkeleton />
+        ) : (
+          <ProfileFeed
+            items={feedItems}
+            likedPosts={likedPosts}
+            currentUser={currentUser}
+            onToggleLike={handleToggleLike}
+            onDeleteItem={handleDeleteItem}
+            onCommentCountChange={handleCommentCountChange}
+            onSelectMedia={setSelectedPostMedia}
+            onCreateFirstPost={focusComposer}
+            onVotePoll={handleVotePoll}
+            onAnswerQuiz={handleAnswerQuiz}
+            onOpenArticle={setSelectedArticle}
+            quizAnswerLoadingIds={quizAnswerLoadingIds}
+          />
+        )}
 
         <MediaDialogs
           selectedMedia={null}

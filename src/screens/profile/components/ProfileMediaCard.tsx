@@ -13,6 +13,8 @@ import { Play } from 'lucide-react'
 export const ProfileMediaCard = ({
   mediaItems,
   activeTab,
+  isLoading,
+  error,
   onTabChange,
   onSelectMedia,
   onCreatePost,
@@ -21,6 +23,22 @@ export const ProfileMediaCard = ({
     isVideoExtension(item.extension) ? 'video' : 'image'
 
   const renderMediaGrid = (items: MediaItem[]) => {
+    if (isLoading) {
+      return (
+        <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-sm text-muted-foreground">
+          Загружаем медиа...
+        </div>
+      )
+    }
+
+    if (error) {
+      return (
+        <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-sm text-destructive">
+          {error}
+        </div>
+      )
+    }
+
     if (!items.length) {
       return (
         <div className="space-y-3 rounded-xl border border-dashed border-border bg-muted/30 p-4 text-center">

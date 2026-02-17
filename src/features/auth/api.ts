@@ -54,4 +54,17 @@ export const authApi = {
     const response = await apiClient.get<ProfileResponse>('/me')
     return response.data
   },
+  updateDescription: async (description: string | null): Promise<void> => {
+    await apiClient.put('/me/description', { description })
+  },
+  updateAvatar: async (file: File): Promise<{ relativePath: string; extension: string }> => {
+    const formData = new FormData()
+    formData.append('avatar', file)
+    const response = await apiClient.post<{ relativePath: string; extension: string }>(
+      '/me/avatar',
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    )
+    return response.data
+  },
 }

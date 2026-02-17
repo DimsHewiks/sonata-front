@@ -295,6 +295,25 @@ export const FeedPostComments = ({
     setFormFiles(Array.from(event.target.files ?? []))
   }
 
+  const handleInsertEmoji = (emoji: string) => {
+    const textarea = composerRef.current
+    const currentValue = textarea?.value ?? formText
+    const selectionStart = textarea?.selectionStart ?? currentValue.length
+    const selectionEnd = textarea?.selectionEnd ?? currentValue.length
+    const nextValue =
+      currentValue.slice(0, selectionStart) + emoji + currentValue.slice(selectionEnd)
+
+    setFormText(nextValue)
+
+    if (textarea) {
+      requestAnimationFrame(() => {
+        const cursor = selectionStart + emoji.length
+        textarea.focus()
+        textarea.setSelectionRange(cursor, cursor)
+      })
+    }
+  }
+
   const handleToggleReplies = (commentId: string) => {
     setCollapsedReplyIds((prev) => ({
       ...prev,
@@ -338,6 +357,7 @@ export const FeedPostComments = ({
               onOpenFiles={() => fileInputRef.current?.click()}
               onFilesChange={handleFilesChange}
               onSubmit={() => void handleCreateComment()}
+              onInsertEmoji={handleInsertEmoji}
               onReply={handleReply}
               onDelete={(commentId) => void handleDeleteComment(commentId)}
               onToggleReplies={handleToggleReplies}
@@ -377,6 +397,7 @@ export const FeedPostComments = ({
               onOpenFiles={() => fileInputRef.current?.click()}
               onFilesChange={handleFilesChange}
               onSubmit={() => void handleCreateComment()}
+              onInsertEmoji={handleInsertEmoji}
               onReply={handleReply}
               onDelete={(commentId) => void handleDeleteComment(commentId)}
               onToggleReplies={handleToggleReplies}

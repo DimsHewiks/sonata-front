@@ -35,7 +35,7 @@ export const FeedPostCard = ({
       : media.length <= 4
         ? 'grid grid-cols-3 gap-[3px]'
         : 'grid grid-cols-4 gap-[3px]'
-    : 'overflow-hidden rounded-xl'
+    : 'w-full'
 
   return (
     <>
@@ -54,7 +54,9 @@ export const FeedPostCard = ({
                   className={
                     isMediaGrid
                       ? 'group relative aspect-square overflow-hidden'
-                      : 'group relative aspect-video overflow-hidden rounded-xl border border-border'
+                      : `group relative w-full overflow-hidden rounded-xl border border-border ${
+                          isVideo ? 'aspect-video bg-black' : 'aspect-square bg-muted'
+                        }`
                   }
                   onClick={() => onSelectMedia(item)}
                 >
@@ -65,12 +67,25 @@ export const FeedPostCard = ({
                       playsInline
                       src={mediaUrl}
                     />
-                  ) : (
+                  ) : isMediaGrid ? (
                     <img
                       src={mediaUrl}
                       alt="Media"
                       className="h-full w-full object-cover"
                     />
+                  ) : (
+                    <>
+                      <img
+                        src={mediaUrl}
+                        alt="Media"
+                        className="absolute inset-0 h-full w-full scale-110 object-cover blur-sm"
+                      />
+                      <img
+                        src={mediaUrl}
+                        alt="Media"
+                        className="relative z-10 h-full w-full object-contain"
+                      />
+                    </>
                   )}
                   {isVideo ? (
                     <>

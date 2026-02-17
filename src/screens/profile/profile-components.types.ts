@@ -3,6 +3,7 @@ import type {
   FeedItem,
   MediaItem,
   MediaType,
+  Instrument,
   PostMedia,
   PrivacySettings,
 } from '@/shared/types/profile'
@@ -14,6 +15,9 @@ export interface ProfileHeaderProps {
   displayLogin: string
   avatarUrl?: string
   description: string
+  instruments?: Instrument[]
+  followersCount?: number
+  followingCount?: number
   onOpenEdit: () => void
   onOpenPrivacy: () => void
 }
@@ -28,6 +32,8 @@ export interface ProfileInfoCardProps {
 export interface ProfileMediaCardProps {
   mediaItems: MediaItem[]
   activeTab: 'all' | MediaType
+  isLoading?: boolean
+  error?: string | null
   onTabChange: (value: 'all' | MediaType) => void
   onSelectMedia: (item: MediaItem) => void
   onCreatePost: () => void
@@ -36,6 +42,7 @@ export interface ProfileMediaCardProps {
 export interface ProfileFeedProps {
   items: FeedItem[]
   likedPosts: Record<string, boolean>
+  currentUser?: { login: string } | null
   onToggleLike: (postId: string) => void
   onDeleteItem: (postId: string) => Promise<void>
   onCommentCountChange: (postId: string, delta: number) => void
@@ -58,6 +65,7 @@ export interface EditFormState {
   name: string
   login: string
   email: string
+  description: string
 }
 
 export interface ProfileDialogsProps {
@@ -68,6 +76,10 @@ export interface ProfileDialogsProps {
   editAvatarFileName: string | null
   editLoading: boolean
   editError: string | null
+  instruments: Instrument[]
+  selectedInstrumentIds: number[]
+  instrumentsLoading: boolean
+  instrumentsError: string | null
   privacySettings: PrivacySettings
   privacyLoading: boolean
   privacyError: string | null
@@ -75,6 +87,7 @@ export interface ProfileDialogsProps {
   onPrivacyOpenChange: (open: boolean) => void
   onEditFieldChange: (field: keyof EditFormState, value: string) => void
   onEditAvatarChange: (file: File | null) => void
+  onToggleInstrument: (instrumentId: number, nextValue: boolean) => void
   onSaveEdit: () => void
   onSavePrivacy: () => void
   onPrivacyChange: (field: keyof PrivacySettings, value: boolean) => void

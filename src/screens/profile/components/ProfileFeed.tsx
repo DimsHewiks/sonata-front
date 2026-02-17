@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
+
 import type { ProfileFeedProps } from '@/screens/profile/profile-components.types'
 import { Button } from '@/ui/widgets/button'
 import { Card, CardContent } from '@/ui/widgets/card'
@@ -12,6 +14,7 @@ import { FeedQuizCard } from '@/screens/profile/components/feed/FeedQuizCard'
 export const ProfileFeed = ({
   items,
   likedPosts,
+  currentUser,
   onToggleLike,
   onDeleteItem,
   onCommentCountChange,
@@ -22,6 +25,64 @@ export const ProfileFeed = ({
   onOpenArticle,
   quizAnswerLoadingIds,
 }: ProfileFeedProps) => {
+  const feedRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!feedRef.current) {
+      return
+    }
+
+    let rafId: number | null = null
+
+    const updateParallax = () => {
+      const container = feedRef.current
+      if (!container) {
+        return
+      }
+
+      const cards = container.querySelectorAll<HTMLElement>('[data-parallax-card]')
+      const viewportMid = window.innerHeight / 2
+
+      cards.forEach((card) => {
+        const img = card.querySelector<HTMLImageElement>('[data-parallax-img]')
+        if (!img) {
+          return
+        }
+
+        const rect = card.getBoundingClientRect()
+        const elementMid = rect.top + rect.height / 2
+        const factor = Number(card.dataset.parallaxFactor ?? '0.12')
+        const scale = Number(card.dataset.parallaxScale ?? '1.2')
+        const offset = (viewportMid - elementMid) * factor
+        const maxShift = (rect.height * (scale - 1)) / 2
+        const clampedOffset = Math.max(-maxShift, Math.min(maxShift, offset))
+
+        img.style.transform = `translate3d(0, ${clampedOffset}px, 0) scale(${scale})`
+      })
+    }
+
+    const onScroll = () => {
+      if (rafId !== null) {
+        return
+      }
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null
+        updateParallax()
+      })
+    }
+
+    updateParallax()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+
+    return () => {
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId)
+      }
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [items.length])
   if (items.length === 0) {
     return (
       <Card>
@@ -36,7 +97,7 @@ export const ProfileFeed = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div ref={feedRef} className="space-y-4">
       {items.map((item) => (
         <Card key={item.id}>
           <FeedHeader
@@ -66,7 +127,7 @@ export const ProfileFeed = ({
             />
           ) : null}
           {item.type === 'article' ? (
-            <FeedArticleCard article={item} onOpen={onOpenArticle} />
+            <FeedArticleCard article={item} onOpen={onOpenArticle} currentUser={currentUser} />
           ) : null}
         </Card>
       ))}

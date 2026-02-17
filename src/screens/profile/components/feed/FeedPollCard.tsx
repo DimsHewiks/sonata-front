@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type { FeedPoll } from '@/shared/types/profile'
 import { Button } from '@/ui/widgets/button'
@@ -15,12 +15,22 @@ interface FeedPollCardProps {
 export const FeedPollCard = ({ poll, onVote }: FeedPollCardProps) => {
   const hasVoted = Boolean(poll.userVoteIds.length)
   const [draftVotes, setDraftVotes] = useState<string[]>([])
+  const [animatingOptionId, setAnimatingOptionId] = useState<string | null>(null)
+  const animationTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (hasVoted) {
       setDraftVotes([])
     }
   }, [hasVoted])
+
+  useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current !== null) {
+        window.clearTimeout(animationTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const totalVotes = useMemo(() => {
     if (poll.totalVotes) {
@@ -39,6 +49,14 @@ export const FeedPollCard = ({ poll, onVote }: FeedPollCardProps) => {
     if (hasVoted) {
       return
     }
+
+    setAnimatingOptionId(optionId)
+    if (animationTimeoutRef.current !== null) {
+      window.clearTimeout(animationTimeoutRef.current)
+    }
+    animationTimeoutRef.current = window.setTimeout(() => {
+      setAnimatingOptionId(null)
+    }, 300)
 
     if (poll.multiple) {
       toggleDraft(optionId)
@@ -78,7 +96,7 @@ export const FeedPollCard = ({ poll, onVote }: FeedPollCardProps) => {
                 </div>
                 <div className="h-2 rounded-full bg-muted">
                   <div
-                    className="h-2 rounded-full bg-foreground/20"
+                    className="h-2 rounded-full bg-foreground/20 transition-[width] duration-500 ease-out"
                     style={{ width: `${percent}%` }}
                   />
                 </div>
@@ -98,7 +116,10 @@ export const FeedPollCard = ({ poll, onVote }: FeedPollCardProps) => {
                   key={option.id}
                   variant={poll.multiple && isSelected ? 'default' : 'outline'}
                   size="sm"
-                  className="justify-start"
+                  className={cn(
+                    'justify-start transition-transform duration-150 active:scale-[0.98]',
+                    animatingOptionId === option.id && 'animate-pulse',
+                  )}
                   onClick={() => handleOptionClick(option.id)}
                 >
                   {option.text}

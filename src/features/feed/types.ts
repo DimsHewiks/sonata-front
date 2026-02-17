@@ -76,3 +76,13 @@ export interface FeedCommentDeleteResponse {
   deleted: boolean
   commentId?: string
 }
+
+export interface FeedMediaItem {
+  relative_path: string
+  extension: string
+  feedId: string
+}
+
+export interface FeedMediaResponse {
+  items: FeedMediaItem[]
+}

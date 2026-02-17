@@ -1,35 +1,40 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 
-import type { FeedItem } from '@/shared/types/profile'
-import { feedApi } from '@/features/feed/api'
+import { articlesApi } from '@/features/articles/api'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import { Alert, AlertDescription, AlertTitle } from '@/ui/widgets/alert'
 import { Button } from '@/ui/widgets/button'
 import { Input } from '@/ui/widgets/input'
 import { Label } from '@/ui/widgets/label'
+import { Tabs, TabsList, TabsTrigger } from '@/ui/widgets/tabs'
 import { Textarea } from '@/ui/widgets/textarea'
 
 interface ComposerArticleFormProps {
-  onCreated: (item: FeedItem) => void
+  onCreated: (item: unknown) => void
 }
 
 interface ArticleFormValues {
   title: string
   description: string
+  type: 'text' | 'song'
 }
 
 const defaultValues: ArticleFormValues = {
   title: '',
   description: '',
+  type: 'text',
 }
 
-export const ComposerArticleForm = ({ onCreated }: ComposerArticleFormProps) => {
-  const { register, handleSubmit, reset } = useForm<ArticleFormValues>({
+export const ComposerArticleForm = ({ onCreated: _onCreated }: ComposerArticleFormProps) => {
+  const router = useRouter()
+  const { register, handleSubmit, reset, setValue, watch } = useForm<ArticleFormValues>({
     defaultValues,
   })
+  const selectedType = watch('type')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -39,21 +44,36 @@ export const ComposerArticleForm = ({ onCreated }: ComposerArticleFormProps) => 
     const title = values.title.trim()
     const description = values.description.trim()
 
-    if (!title || !description) {
-      setError('Заполните заголовок и описание')
+    if (!title) {
+      setError('Заполните заголовок')
       return
     }
 
     setLoading(true)
 
     try {
-      const createdItem = await feedApi.createArticle({
+      const created = await articlesApi.createDraft({
         title,
-        description,
+        type: values.type,
+        format: 'markdown',
       })
 
-      onCreated(createdItem)
+      if (!created?.id) {
+        setError('Сервер не вернул ID статьи.')
+        return
+      }
+
+      if (description) {
+        await articlesApi.update(created.id, {
+          title,
+          type: values.type,
+          format: 'markdown',
+          excerpt: description,
+        })
+      }
+
       reset(defaultValues)
+      router.push(`/articles/${encodeURIComponent(created.id)}/edit`)
     } catch (articleError) {
       setError(getApiErrorMessage(articleError))
     } finally {
@@ -77,12 +97,23 @@ export const ComposerArticleForm = ({ onCreated }: ComposerArticleFormProps) => 
         <Label htmlFor="article-description">Короткое описание</Label>
         <Textarea id="article-description" {...register('description')} disabled={loading} />
       </div>
-      <Alert>
-        <AlertTitle>Редактор статьи будет позже</AlertTitle>
-        <AlertDescription>
-          Пока доступен только базовый шаблон для черновика.
-        </AlertDescription>
-      </Alert>
+      <div className="space-y-2">
+        <Label>Тип статьи</Label>
+        <Tabs value={selectedType} onValueChange={(value) => setValue('type', value as ArticleFormValues['type'])}>
+          <TabsList>
+            <TabsTrigger value="text">
+              Text
+            </TabsTrigger>
+            <TabsTrigger value="song">
+              Song
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <input type="hidden" {...register('type')} />
+        <div className="text-xs text-muted-foreground">
+          Тип влияет на доступные инструменты в редакторе.
+        </div>
+      </div>
       <div className="flex justify-end">
         <Button type="submit" disabled={loading}>
           {loading ? 'Готовим...' : 'Продолжить'}

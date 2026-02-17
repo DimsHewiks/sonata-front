@@ -11,6 +11,7 @@ import { getApiErrorMessage } from '@/shared/api/errors'
 import { Alert, AlertDescription, AlertTitle } from '@/ui/widgets/alert'
 import { Button } from '@/ui/widgets/button'
 import { Textarea } from '@/ui/widgets/textarea'
+import { EmojiPickerPopover } from '@/ui/widgets/emoji-picker'
 
 interface ComposerPostFormProps {
   onCreated: (item: FeedItem) => void
@@ -25,15 +26,17 @@ const createId = (): string => {
 }
 
 export const ComposerPostForm = ({ onCreated }: ComposerPostFormProps) => {
-  const { register, handleSubmit, reset } = useForm<PostFormValues>({
+  const { register, handleSubmit, reset, setValue, getValues } = useForm<PostFormValues>({
     defaultValues: { text: '' },
   })
+  const textRegister = register('text')
   const [attachments, setAttachments] = useState<ComposerAttachment[]>([])
   const attachmentsRef = useRef<ComposerAttachment[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const imageInputRef = useRef<HTMLInputElement | null>(null)
   const videoInputRef = useRef<HTMLInputElement | null>(null)
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
 
   const syncAttachments = (next: ComposerAttachment[]) => {
     attachmentsRef.current = next
@@ -70,6 +73,25 @@ export const ComposerPostForm = ({ onCreated }: ComposerPostFormProps) => {
     }
 
     syncAttachments(attachmentsRef.current.filter((item) => item.id !== id))
+  }
+
+  const handleInsertEmoji = (emoji: string) => {
+    const textarea = textAreaRef.current
+    const currentValue = textarea?.value ?? getValues('text') ?? ''
+    const selectionStart = textarea?.selectionStart ?? currentValue.length
+    const selectionEnd = textarea?.selectionEnd ?? currentValue.length
+    const nextValue =
+      currentValue.slice(0, selectionStart) + emoji + currentValue.slice(selectionEnd)
+
+    setValue('text', nextValue, { shouldDirty: true })
+
+    if (textarea) {
+      requestAnimationFrame(() => {
+        const cursor = selectionStart + emoji.length
+        textarea.focus()
+        textarea.setSelectionRange(cursor, cursor)
+      })
+    }
   }
 
   const onSubmit = handleSubmit(async ({ text }) => {
@@ -110,7 +132,11 @@ export const ComposerPostForm = ({ onCreated }: ComposerPostFormProps) => {
       ) : null}
       <Textarea
         placeholder="Что нового?"
-        {...register('text')}
+        {...textRegister}
+        ref={(element) => {
+          textRegister.ref(element)
+          textAreaRef.current = element
+        }}
         disabled={loading}
       />
       <div className="flex flex-wrap items-center gap-3">
@@ -156,6 +182,7 @@ export const ComposerPostForm = ({ onCreated }: ComposerPostFormProps) => {
           <VideoIcon className="h-4 w-4" />
           Видео
         </Button>
+        <EmojiPickerPopover onEmojiSelect={handleInsertEmoji} disabled={loading} />
         <div className="ml-auto">
           <Button size="sm" type="submit" disabled={loading}>
             {loading ? (

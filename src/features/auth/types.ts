@@ -1,3 +1,5 @@
+import type { Instrument } from '@/shared/types/profile'
+
 export interface LoginFormValues {
   login: string
   password: string
@@ -29,4 +31,6 @@ export interface ProfileResponse {
   login: string
   email: string | null
   avatarPath: string | null
+  instruments: Instrument[]
+  description: string | null
 }

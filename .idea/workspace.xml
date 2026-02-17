@@ -5,30 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="374c1823-6513-41c7-a807-4c04cdbf2098" name="Changes" comment="first">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.dockerignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.idea/Sonata.iml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.idea/Sonata.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/Docker/mariadb/init.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Docker/mariadb/init.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/Docker/nginx/app.conf" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Docker/nginx/app.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/Docker/php/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Docker/php/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/backend/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/Auth/Controllers/AuthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api/Auth/Controllers/AuthController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/Common/Middleware/AuthMiddleware.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api/Common/Middleware/AuthMiddleware.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/auth/AuthPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/auth/AuthPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/auth/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/auth/api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/auth/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/auth/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/feed/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/feed/api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/feed/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/feed/types.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/profile/ProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/ProfilePage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/MediaDialogs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/MediaDialogs.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileComposer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileComposer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ArticleDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ArticleDialog.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileDialogs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileDialogs.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileFeed.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileFeed.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileHeaderCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileHeaderCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileHeaderSection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileHeaderSection.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileMediaCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileMediaCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileWallSection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileWallSection.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/composer/ComposerArticleForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/composer/ComposerArticleForm.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/composer/ComposerPostForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/composer/ComposerPostForm.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedArticleCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedArticleCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedCommentsPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedCommentsPanel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPollCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPollCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPostCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPostCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPostComments.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPostComments.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/profile/profile-components.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/profile-components.types.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shared/api/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/api/client.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shared/types/profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/types/profile.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -41,7 +40,7 @@
     <execution />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="179" />
+    <option name="cachedIndexableFilesCount" value="287" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -147,6 +146,8 @@
       <workItem from="1770460680732" duration="184000" />
       <workItem from="1770787818226" duration="3916000" />
       <workItem from="1770897014243" duration="12802000" />
+      <workItem from="1770991593973" duration="29125000" />
+      <workItem from="1771204974092" duration="1028000" />
     </task>
     <task id="LOCAL-00001" summary="first">
       <option name="closed" value="true" />
@@ -156,7 +157,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770790244917</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="first">
+      <option name="closed" value="true" />
+      <created>1770991670369</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1770991670369</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

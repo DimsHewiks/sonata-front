@@ -5,7 +5,11 @@ import { useEffect, useMemo, useState } from 'react'
 
 import type { ProfileResponse } from '@/features/auth/types'
 import type { EditFormState } from '@/screens/profile/profile-components.types'
-import type { MediaItem, MediaType, PrivacySettings } from '@/shared/types/profile'
+import type { Instrument, MediaItem, MediaType, PrivacySettings } from '@/shared/types/profile'
+import { authApi } from '@/features/auth/api'
+import { instrumentsApi } from '@/features/instruments/api'
+import { feedApi } from '@/features/feed/api'
+import { getApiErrorMessage } from '@/shared/api/errors'
 import { getMediaUrl } from '@/shared/config/api'
 import { MediaDialogs } from '@/screens/profile/components/MediaDialogs'
 import { ProfileDialogs } from '@/screens/profile/components/ProfileDialogs'
@@ -17,39 +21,6 @@ interface ProfileHeaderSectionProps extends PropsWithChildren {
   user: ProfileResponse
   onCreatePost: () => void
 }
-
-const buildMockMedia = (): MediaItem[] => [
-  {
-    relative_path:
-      'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=400&q=80',
-    extension: 'jpg',
-    createdAt: '2 дня назад',
-  },
-  {
-    relative_path:
-      'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-    extension: 'mp4',
-    createdAt: '3 дня назад',
-  },
-  {
-    relative_path:
-      'https://images.unsplash.com/photo-1485579149621-3123dd979885?auto=format&fit=crop&w=400&q=80',
-    extension: 'jpg',
-    createdAt: '1 неделя назад',
-  },
-  {
-    relative_path:
-      'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80',
-    extension: 'jpg',
-    createdAt: '2 недели назад',
-  },
-  {
-    relative_path:
-      'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    extension: 'mp4',
-    createdAt: 'месяц назад',
-  },
-]
 
 export const ProfileHeaderSection = ({ user, onCreatePost, children }: ProfileHeaderSectionProps) => {
   const [activeMediaTab, setActiveMediaTab] = useState<'all' | MediaType>('all')
@@ -65,12 +36,19 @@ export const ProfileHeaderSection = ({ user, onCreatePost, children }: ProfileHe
     login?: string
     email?: string | null
     avatarUrl?: string
+    instruments?: Instrument[]
+    description?: string | null
   }>({})
   const [editForm, setEditForm] = useState<EditFormState>({
     name: '',
     login: '',
     email: '',
+    description: '',
   })
+  const [availableInstruments, setAvailableInstruments] = useState<Instrument[]>([])
+  const [selectedInstrumentIds, setSelectedInstrumentIds] = useState<number[]>([])
+  const [instrumentsLoading, setInstrumentsLoading] = useState(false)
+  const [instrumentsError, setInstrumentsError] = useState<string | null>(null)
   const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null)
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
     profilePublic: true,
@@ -78,8 +56,9 @@ export const ProfileHeaderSection = ({ user, onCreatePost, children }: ProfileHe
     showEmail: false,
     mediaPublic: true,
   })
-
-  const mediaItems = useMemo(() => buildMockMedia(), [])
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
+  const [mediaLoading, setMediaLoading] = useState(false)
+  const [mediaError, setMediaError] = useState<string | null>(null)
 
   const editAvatarPreview = useMemo(() => {
     if (!editAvatarFile) {
@@ -102,10 +81,16 @@ export const ProfileHeaderSection = ({ user, onCreatePost, children }: ProfileHe
         name: profileOverrides.name ?? user.name,
         login: profileOverrides.login ?? user.login,
         email: profileOverrides.email ?? user.email ?? '',
+        description: profileOverrides.description ?? user.description ?? '',
       })
       setEditAvatarFile(null)
       setEditError(null)
       setEditLoading(false)
+      setSelectedInstrumentIds(
+        (profileOverrides.instruments ?? user.instruments).map(
+          (instrument) => instrument.id,
+        ),
+      )
     }
   }, [isEditOpen, profileOverrides, user])
 
@@ -116,12 +101,97 @@ export const ProfileHeaderSection = ({ user, onCreatePost, children }: ProfileHe
     }
   }, [isPrivacyOpen])
 
+  useEffect(() => {
+    let isActive = true
+
+    const loadMedia = () => {
+      setMediaLoading(true)
+      setMediaError(null)
+
+      feedApi
+        .listMedia()
+        .then((response) => {
+          if (!isActive) {
+            return
+          }
+          setMediaItems(
+            response.items.map((item) => ({
+              relative_path: item.relative_path,
+              extension: item.extension,
+              feedId: item.feedId,
+            })),
+          )
+        })
+        .catch((error) => {
+          if (isActive) {
+            setMediaError(getApiErrorMessage(error))
+          }
+        })
+        .finally(() => {
+          if (isActive) {
+            setMediaLoading(false)
+          }
+        })
+    }
+
+    loadMedia()
+
+    const handleMediaRefresh = () => {
+      loadMedia()
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('profile:media-refresh', handleMediaRefresh)
+    }
+
+    return () => {
+      isActive = false
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('profile:media-refresh', handleMediaRefresh)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isEditOpen) {
+      return
+    }
+
+    let isActive = true
+    const loadInstruments = async () => {
+      setInstrumentsLoading(true)
+      setInstrumentsError(null)
+      try {
+        const response = await instrumentsApi.list()
+        if (isActive) {
+          setAvailableInstruments(response.items)
+        }
+      } catch (error) {
+        if (isActive) {
+          setInstrumentsError(getApiErrorMessage(error))
+        }
+      } finally {
+        if (isActive) {
+          setInstrumentsLoading(false)
+        }
+      }
+    }
+
+    loadInstruments()
+
+    return () => {
+      isActive = false
+    }
+  }, [isEditOpen])
+
   const displayName = profileOverrides.name ?? user.name
   const displayLogin = profileOverrides.login ?? user.login
   const displayEmail = profileOverrides.email ?? user.email ?? null
+  const displayDescription = profileOverrides.description ?? user.description ?? null
   const displayAvatarUrl =
     profileOverrides.avatarUrl ??
     (user.avatarPath ? getMediaUrl(user.avatarPath) : undefined)
+  const displayInstruments = profileOverrides.instruments ?? user.instruments
 
   const handleCopyUuid = async () => {
     await navigator.clipboard.writeText(user.uuid)
@@ -135,18 +205,36 @@ export const ProfileHeaderSection = ({ user, onCreatePost, children }: ProfileHe
       return
     }
 
-    setEditLoading(true)
+    const updateProfile = async () => {
+      setEditLoading(true)
+      try {
+        const avatarResponse = editAvatarFile
+          ? await authApi.updateAvatar(editAvatarFile)
+          : null
+        const [instrumentsResponse] = await Promise.all([
+          instrumentsApi.setMyInstruments(selectedInstrumentIds),
+          authApi.updateDescription(editForm.description.trim() || null),
+        ])
+        setProfileOverrides({
+          name: editForm.name.trim(),
+          login: editForm.login.trim(),
+          email: editForm.email.trim() || null,
+          avatarUrl:
+            avatarResponse?.relativePath
+              ? getMediaUrl(avatarResponse.relativePath)
+              : profileOverrides.avatarUrl,
+          instruments: instrumentsResponse.items,
+          description: editForm.description.trim() || null,
+        })
+        setIsEditOpen(false)
+      } catch (error) {
+        setEditError(getApiErrorMessage(error))
+      } finally {
+        setEditLoading(false)
+      }
+    }
 
-    setTimeout(() => {
-      setProfileOverrides({
-        name: editForm.name.trim(),
-        login: editForm.login.trim(),
-        email: editForm.email.trim() || null,
-        avatarUrl: editAvatarPreview ?? profileOverrides.avatarUrl,
-      })
-      setEditLoading(false)
-      setIsEditOpen(false)
-    }, 800)
+    updateProfile()
   }
 
   const handleSavePrivacy = () => {
@@ -165,7 +253,10 @@ export const ProfileHeaderSection = ({ user, onCreatePost, children }: ProfileHe
         displayName={displayName}
         displayLogin={displayLogin}
         avatarUrl={displayAvatarUrl}
-        description="Здесь может быть статус или короткое описание."
+        description={displayDescription ?? 'Здесь может быть статус или короткое описание.'}
+        instruments={displayInstruments}
+        followersCount={0}
+        followingCount={0}
         onOpenEdit={() => setIsEditOpen(true)}
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
       />
@@ -175,6 +266,8 @@ export const ProfileHeaderSection = ({ user, onCreatePost, children }: ProfileHe
           <ProfileMediaCard
             mediaItems={mediaItems}
             activeTab={activeMediaTab}
+            isLoading={mediaLoading}
+            error={mediaError}
             onTabChange={setActiveMediaTab}
             onSelectMedia={setSelectedMedia}
             onCreatePost={onCreatePost}
@@ -207,6 +300,10 @@ export const ProfileHeaderSection = ({ user, onCreatePost, children }: ProfileHe
         editAvatarFileName={editAvatarFile?.name ?? null}
         editLoading={editLoading}
         editError={editError}
+        instruments={availableInstruments}
+        selectedInstrumentIds={selectedInstrumentIds}
+        instrumentsLoading={instrumentsLoading}
+        instrumentsError={instrumentsError}
         privacySettings={privacySettings}
         privacyLoading={privacyLoading}
         privacyError={privacyError}
@@ -219,6 +316,17 @@ export const ProfileHeaderSection = ({ user, onCreatePost, children }: ProfileHe
           }))
         }
         onEditAvatarChange={setEditAvatarFile}
+        onToggleInstrument={(instrumentId, nextValue) =>
+          setSelectedInstrumentIds((prev) => {
+            if (nextValue) {
+              if (prev.includes(instrumentId)) {
+                return prev
+              }
+              return [...prev, instrumentId]
+            }
+            return prev.filter((id) => id !== instrumentId)
+          })
+        }
         onSaveEdit={handleSaveProfile}
         onSavePrivacy={handleSavePrivacy}
         onPrivacyChange={(field, value) =>

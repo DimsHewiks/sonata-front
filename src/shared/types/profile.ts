@@ -13,6 +13,7 @@ export interface MediaFile {
 
 export interface MediaItem extends MediaFile {
   createdAt?: string
+  feedId?: string
 }
 
 export interface PostAuthor {
@@ -92,6 +93,13 @@ export interface FeedArticle {
   title: string
   description: string
   readTime: string
+  articleId?: string
+  articleType?: 'text' | 'song'
+  cover?: {
+    relative_path: string
+    extension: string
+    position?: { x: number; y: number } | null
+  } | null
 }
 
 export type FeedItem = FeedPost | FeedPoll | FeedQuiz | FeedArticle
@@ -108,4 +116,20 @@ export interface PrivacySettings {
   showAge: boolean
   showEmail: boolean
   mediaPublic: boolean
+}
+
+export type InstrumentSticker =
+  | 'guitar'
+  | 'electric-guitar'
+  | 'piano'
+  | 'drums'
+  | 'bass'
+  | 'microphone'
+  | 'accordion'
+  | 'bayan'
+
+export interface Instrument {
+  id: number
+  name: string
+  sticker: InstrumentSticker | null
 }

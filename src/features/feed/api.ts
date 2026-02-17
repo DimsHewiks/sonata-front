@@ -13,6 +13,7 @@ import type {
   FeedCreateResponse,
   FeedDeleteResponse,
   FeedListResponse,
+  FeedMediaResponse,
   QuizAnswerPayload,
   QuizAnswerResponse,
   QuizAnswerResult,
@@ -146,6 +147,10 @@ export const feedApi = {
   },
   deleteComment: async (commentId: string): Promise<FeedCommentDeleteResponse> => {
     const response = await apiClient.delete<FeedCommentDeleteResponse>(`/comments/${commentId}`)
+    return response.data
+  },
+  listMedia: async (): Promise<FeedMediaResponse> => {
+    const response = await apiClient.get<FeedMediaResponse>('/feed/media')
     return response.data
   },
 }

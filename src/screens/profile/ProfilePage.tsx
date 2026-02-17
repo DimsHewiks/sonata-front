@@ -61,7 +61,7 @@ export const ProfilePage = () => {
         user={user}
         onCreatePost={() => wallRef.current?.focusComposer()}
       >
-        <ProfileWallSection ref={wallRef} status={status} />
+        <ProfileWallSection ref={wallRef} status={status} currentUser={user} />
       </ProfileHeaderSection>
     </div>
   )
