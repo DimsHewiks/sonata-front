@@ -1,17 +1,30 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 
 import type { ProfileFeedProps } from '@/screens/profile/profile-components.types'
 import { Button } from '@/ui/widgets/button'
 import { Card, CardContent } from '@/ui/widgets/card'
-import { FeedArticleCard } from '@/screens/profile/components/feed/FeedArticleCard'
-import { FeedHeader } from '@/screens/profile/components/feed/FeedHeader'
-import { FeedPollCard } from '@/screens/profile/components/feed/FeedPollCard'
-import { FeedPostCard } from '@/screens/profile/components/feed/FeedPostCard'
-import { FeedQuizCard } from '@/screens/profile/components/feed/FeedQuizCard'
+import { FeedArticleCard } from '@/shared/components/feed/FeedArticleCard'
+import { FeedHeader } from '@/shared/components/feed/FeedHeader'
+import { FeedPollCard } from '@/shared/components/feed/FeedPollCard'
+import { FeedPostCard } from '@/shared/components/feed/FeedPostCard'
+import { FeedQuizCard } from '@/shared/components/feed/FeedQuizCard'
 
-export const ProfileFeed = ({
+interface ParallaxCardRef {
+  card: HTMLElement
+  img: HTMLImageElement
+  factor: number
+  scale: number
+}
+
+const PARALLAX_MAX_CARDS = 24
+const PARALLAX_ROOT_MARGIN = '280px 0px'
+
+const MemoizedFeedPollCard = memo(FeedPollCard)
+MemoizedFeedPollCard.displayName = 'MemoizedFeedPollCard'
+
+const ProfileFeedComponent = ({
   items,
   likedPosts,
   currentUser,
@@ -26,33 +39,59 @@ export const ProfileFeed = ({
   quizAnswerLoadingIds,
 }: ProfileFeedProps) => {
   const feedRef = useRef<HTMLDivElement | null>(null)
+  const parallaxCardsRef = useRef<ParallaxCardRef[]>([])
+  const activeParallaxCardsRef = useRef<ParallaxCardRef[]>([])
 
   useEffect(() => {
-    if (!feedRef.current) {
+    const container = feedRef.current
+    if (!container) {
       return
     }
 
+    const allParallaxCards = Array.from(
+      container.querySelectorAll<HTMLElement>('[data-parallax-card]'),
+    ).flatMap((card) => {
+      const img = card.querySelector<HTMLImageElement>('[data-parallax-img]')
+      if (!img) {
+        return []
+      }
+      return [
+        {
+          card,
+          img,
+          factor: Number(card.dataset.parallaxFactor ?? '0.12'),
+          scale: Number(card.dataset.parallaxScale ?? '1.2'),
+        },
+      ]
+    })
+    parallaxCardsRef.current = allParallaxCards
+
+    if (!allParallaxCards.length) {
+      return
+    }
+
+    if (allParallaxCards.length > PARALLAX_MAX_CARDS) {
+      allParallaxCards.forEach(({ img, scale }) => {
+        img.style.transform = `translate3d(0, 0px, 0) scale(${scale})`
+      })
+
+      return () => {
+        parallaxCardsRef.current = []
+        activeParallaxCardsRef.current = []
+      }
+    }
+
+    let observer: IntersectionObserver | null = null
     let rafId: number | null = null
+    const visibleCards = new Set<ParallaxCardRef>(allParallaxCards)
+    activeParallaxCardsRef.current = allParallaxCards
 
     const updateParallax = () => {
-      const container = feedRef.current
-      if (!container) {
-        return
-      }
-
-      const cards = container.querySelectorAll<HTMLElement>('[data-parallax-card]')
       const viewportMid = window.innerHeight / 2
 
-      cards.forEach((card) => {
-        const img = card.querySelector<HTMLImageElement>('[data-parallax-img]')
-        if (!img) {
-          return
-        }
-
+      activeParallaxCardsRef.current.forEach(({ card, img, factor, scale }) => {
         const rect = card.getBoundingClientRect()
         const elementMid = rect.top + rect.height / 2
-        const factor = Number(card.dataset.parallaxFactor ?? '0.12')
-        const scale = Number(card.dataset.parallaxScale ?? '1.2')
         const offset = (viewportMid - elementMid) * factor
         const maxShift = (rect.height * (scale - 1)) / 2
         const clampedOffset = Math.max(-maxShift, Math.min(maxShift, offset))
@@ -61,7 +100,7 @@ export const ProfileFeed = ({
       })
     }
 
-    const onScroll = () => {
+    const requestParallaxUpdate = () => {
       if (rafId !== null) {
         return
       }
@@ -71,16 +110,60 @@ export const ProfileFeed = ({
       })
     }
 
+    if (typeof IntersectionObserver !== 'undefined') {
+      const cardByElement = new Map(allParallaxCards.map((item) => [item.card, item]))
+
+      observer = new IntersectionObserver((entries) => {
+        let changed = false
+
+        entries.forEach((entry) => {
+          const cardRef = cardByElement.get(entry.target as HTMLElement)
+          if (!cardRef) {
+            return
+          }
+
+          if (entry.isIntersecting) {
+            if (!visibleCards.has(cardRef)) {
+              visibleCards.add(cardRef)
+              changed = true
+            }
+            return
+          }
+
+          if (visibleCards.delete(cardRef)) {
+            changed = true
+          }
+        })
+
+        if (!changed) {
+          return
+        }
+
+        activeParallaxCardsRef.current = Array.from(visibleCards)
+        requestParallaxUpdate()
+      }, {
+        root: null,
+        rootMargin: PARALLAX_ROOT_MARGIN,
+      })
+
+      allParallaxCards.forEach(({ card }) => {
+        observer?.observe(card)
+      })
+    }
+
     updateParallax()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    window.addEventListener('scroll', requestParallaxUpdate, { passive: true })
+    window.addEventListener('resize', requestParallaxUpdate)
 
     return () => {
       if (rafId !== null) {
         window.cancelAnimationFrame(rafId)
       }
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      observer?.disconnect()
+      parallaxCardsRef.current = []
+      activeParallaxCardsRef.current = []
+      window.removeEventListener('scroll', requestParallaxUpdate)
+      window.removeEventListener('resize', requestParallaxUpdate)
     }
   }, [items.length])
   if (items.length === 0) {
@@ -117,7 +200,7 @@ export const ProfileFeed = ({
             />
           ) : null}
           {item.type === 'poll' ? (
-            <FeedPollCard poll={item} onVote={onVotePoll} />
+            <MemoizedFeedPollCard poll={item} onVote={onVotePoll} />
           ) : null}
           {item.type === 'quiz' ? (
             <FeedQuizCard
@@ -134,3 +217,6 @@ export const ProfileFeed = ({
     </div>
   )
 }
+
+export const ProfileFeed = memo(ProfileFeedComponent)
+ProfileFeed.displayName = 'ProfileFeed'

@@ -1,7 +1,7 @@
 'use client'
 
 import type { ForwardedRef } from 'react'
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 import type { AuthStatus, ProfileResponse } from '@/features/auth/types'
 import { feedApi } from '@/features/feed/api'
@@ -24,6 +24,8 @@ interface ProfileWallSectionProps {
   status: AuthStatus
   currentUser: ProfileResponse
 }
+
+const noop = () => undefined
 
 const FeedSkeleton = () => {
   return (
@@ -62,18 +64,24 @@ export const ProfileWallSection = forwardRef(
     const [selectedArticle, setSelectedArticle] = useState<FeedArticle | null>(null)
     const [quizAnswerLoadingIds, setQuizAnswerLoadingIds] = useState<Record<string, boolean>>({})
 
-    useImperativeHandle(ref, () => ({
-      focusComposer: () => {
-        setComposerType('post')
-        composerRef.current?.scrollIntoView({ behavior: 'smooth' })
-      },
-    }))
+    const focusComposer = useCallback(() => {
+      setComposerType('post')
+      composerRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [])
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        focusComposer,
+      }),
+      [focusComposer],
+    )
 
     useEffect(() => {
       if (status !== 'authenticated') {
         setFeedError(null)
         setFeedLoading(false)
-        setFeedItems([])
+        setFeedItems((prev) => (prev.length ? [] : prev))
         return
       }
 
@@ -108,14 +116,14 @@ export const ProfileWallSection = forwardRef(
       }
     }, [status])
 
-    const handleCreateItem = (item: FeedItem) => {
+    const handleCreateItem = useCallback((item: FeedItem) => {
       setFeedItems((prev) => [item, ...prev])
       if (typeof window !== 'undefined' && item.type === 'post') {
         window.dispatchEvent(new Event('profile:media-refresh'))
       }
-    }
+    }, [])
 
-    const handleDeleteItem = async (itemId: string) => {
+    const handleDeleteItem = useCallback(async (itemId: string) => {
       try {
         const response = await feedApi.deleteItem(itemId)
         if (!response.deleted) {
@@ -127,88 +135,118 @@ export const ProfileWallSection = forwardRef(
         setFeedError(getApiErrorMessage(error))
         throw error
       }
-    }
+    }, [])
 
-    const handleToggleLike = (postId: string) => {
+    const handleToggleLike = useCallback((postId: string) => {
       setLikedPosts((prev) => ({
         ...prev,
         [postId]: !prev[postId],
       }))
-    }
+    }, [])
 
-    const handleCommentCountChange = (postId: string, delta: number) => {
+    const handleCommentCountChange = useCallback((postId: string, delta: number) => {
       if (delta === 0) {
         return
       }
 
-      setFeedItems((prev) =>
-        prev.map((item) => {
-          if (item.type !== 'post' || item.id !== postId) {
-            return item
-          }
+      setFeedItems((prev) => {
+        const itemIndex = prev.findIndex((item) => item.type === 'post' && item.id === postId)
 
-          const currentComments = item.stats?.comments ?? 0
-          const nextComments = Math.max(0, currentComments + delta)
+        if (itemIndex < 0) {
+          return prev
+        }
 
-          return {
-            ...item,
-            stats: {
-              likes: item.stats?.likes ?? 0,
-              comments: nextComments,
-            },
-          }
-        }),
-      )
-    }
+        const item = prev[itemIndex]
+        if (item.type !== 'post') {
+          return prev
+        }
+        const currentComments = item.stats?.comments ?? 0
+        const nextComments = Math.max(0, currentComments + delta)
 
-    const handleVotePoll = (pollId: string, optionIds: string[]) => {
-      setFeedItems((prev) =>
-        prev.map((item) => {
-          if (item.type !== 'poll' || item.id !== pollId || item.userVoteIds.length) {
-            return item
-          }
+        if (nextComments === currentComments) {
+          return prev
+        }
 
-          const validIds = item.options.map((option) => option.id)
-          const uniqueIds = Array.from(new Set(optionIds)).filter((id) => validIds.includes(id))
-          const currentTotal =
-            item.totalVotes || item.options.reduce((sum, option) => sum + option.votes, 0)
+        const next = [...prev]
+        next[itemIndex] = {
+          ...item,
+          stats: {
+            likes: item.stats?.likes ?? 0,
+            comments: nextComments,
+          },
+        }
 
-          if (!uniqueIds.length) {
-            return item
-          }
+        return next
+      })
+    }, [])
 
-          return {
-            ...item,
-            options: item.options.map((option) =>
-              uniqueIds.includes(option.id)
-                ? { ...option, votes: option.votes + 1 }
-                : option,
-            ),
-            totalVotes: currentTotal + uniqueIds.length,
-            userVoteIds: uniqueIds,
-          }
-        }),
-      )
-    }
+    const handleVotePoll = useCallback((pollId: string, optionIds: string[]) => {
+      setFeedItems((prev) => {
+        const itemIndex = prev.findIndex((item) => item.type === 'poll' && item.id === pollId)
+        if (itemIndex < 0) {
+          return prev
+        }
 
-    const applyQuizResult = (result: QuizAnswerResult) => {
-      setFeedItems((prev) =>
-        prev.map((item) => {
-          if (item.type !== 'quiz' || item.id !== result.feedId) {
-            return item
-          }
+        const item = prev[itemIndex]
+        if (item.type !== 'poll') {
+          return prev
+        }
+        if (item.userVoteIds.length) {
+          return prev
+        }
 
-          return {
-            ...item,
-            userAnswerId: result.userAnswerId,
-            isCorrect: result.isCorrect,
-            correctOptionId: result.correctOptionId,
-          }
-        }),
-      )
-    }
+        const validIds = new Set(item.options.map((option) => option.id))
+        const uniqueIds = Array.from(new Set(optionIds)).filter((id) => validIds.has(id))
+        if (!uniqueIds.length) {
+          return prev
+        }
 
-    const handleAnswerQuiz = async (quizId: string, optionId: string) => {
+        const selectedIds = new Set(uniqueIds)
+        const currentTotal =
+          item.totalVotes || item.options.reduce((sum, option) => sum + option.votes, 0)
+        const next = [...prev]
+        next[itemIndex] = {
+          ...item,
+          options: item.options.map((option) =>
+            selectedIds.has(option.id)
+              ? { ...option, votes: option.votes + 1 }
+              : option,
+          ),
+          totalVotes: currentTotal + uniqueIds.length,
+          userVoteIds: uniqueIds,
+        }
+
+        return next
+      })
+    }, [])
+
+    const applyQuizResult = useCallback((result: QuizAnswerResult) => {
+      setFeedItems((prev) => {
+        const itemIndex = prev.findIndex((item) => item.type === 'quiz' && item.id === result.feedId)
+        if (itemIndex < 0) {
+          return prev
+        }
+
+        const item = prev[itemIndex]
+        if (item.type !== 'quiz') {
+          return prev
+        }
+        if (item.userAnswerId === result.userAnswerId && item.isCorrect === result.isCorrect) {
+          return prev
+        }
+
+        const next = [...prev]
+        next[itemIndex] = {
+          ...item,
+          userAnswerId: result.userAnswerId,
+          isCorrect: result.isCorrect,
+          correctOptionId: result.correctOptionId,
+        }
+        return next
+      })
+    }, [])
+
+    const handleAnswerQuiz = useCallback(async (quizId: string, optionId: string) => {
       if (quizAnswerLoadingIds[quizId]) {
         return
       }
@@ -246,12 +284,15 @@ export const ProfileWallSection = forwardRef(
           return next
         })
       }
-    }
+    }, [applyQuizResult, feedItems, quizAnswerLoadingIds])
 
-    const focusComposer = () => {
-      setComposerType('post')
-      composerRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }
+    const handleClosePostMedia = useCallback(() => {
+      setSelectedPostMedia(null)
+    }, [])
+
+    const handleCloseArticle = useCallback(() => {
+      setSelectedArticle(null)
+    }, [])
 
     return (
       <div className="space-y-6">
@@ -291,11 +332,11 @@ export const ProfileWallSection = forwardRef(
         <MediaDialogs
           selectedMedia={null}
           selectedPostMedia={selectedPostMedia}
-          onCloseMedia={() => undefined}
-          onClosePostMedia={() => setSelectedPostMedia(null)}
+          onCloseMedia={noop}
+          onClosePostMedia={handleClosePostMedia}
         />
 
-        <ArticleDialog article={selectedArticle} onClose={() => setSelectedArticle(null)} />
+        <ArticleDialog article={selectedArticle} onClose={handleCloseArticle} />
       </div>
     )
   },

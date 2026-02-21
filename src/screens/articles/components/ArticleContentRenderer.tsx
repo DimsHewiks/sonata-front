@@ -12,7 +12,7 @@ interface ArticleContentRendererProps {
   className?: string
 }
 
-const IMAGE_TOKEN = /@image\s+([a-f0-9-]{6,})/gi
+const IMAGE_TOKEN = /@image\s+([a-zA-Z0-9_-]{6,})/gi
 
 export const ArticleContentRenderer = ({ body, embeds, className }: ArticleContentRendererProps) => {
   const parts = useMemo(() => {

@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useCallback } from 'react'
 import type { FeedQuiz } from '@/shared/types/profile'
 import { Loader2 } from 'lucide-react'
 import { CardContent } from '@/ui/widgets/card'
@@ -11,19 +12,19 @@ interface FeedQuizCardProps {
   loading?: boolean
 }
 
-export const FeedQuizCard = ({ quiz, onAnswer, loading = false }: FeedQuizCardProps) => {
+const FeedQuizCardComponent = ({ quiz, onAnswer, loading = false }: FeedQuizCardProps) => {
   const hasAnswered = Boolean(quiz.userAnswerId)
   const isDisabled = hasAnswered || loading
 
-  const handleAnswer = (optionId: string) => {
+  const handleAnswer = useCallback((optionId: string) => {
     if (isDisabled) {
       return
     }
 
     onAnswer(quiz.id, optionId)
-  }
+  }, [isDisabled, onAnswer, quiz.id])
 
-  const getOptionStyle = (optionId: string) => {
+  const getOptionStyle = useCallback((optionId: string) => {
     if (!hasAnswered) {
       return 'border-border hover:border-muted-foreground/50'
     }
@@ -44,7 +45,7 @@ export const FeedQuizCard = ({ quiz, onAnswer, loading = false }: FeedQuizCardPr
     }
 
     return 'border-border text-muted-foreground'
-  }
+  }, [hasAnswered, quiz.correctOptionId, quiz.userAnswerId])
 
   return (
     <CardContent className="space-y-4">
@@ -78,3 +79,6 @@ export const FeedQuizCard = ({ quiz, onAnswer, loading = false }: FeedQuizCardPr
     </CardContent>
   )
 }
+
+export const FeedQuizCard = memo(FeedQuizCardComponent)
+FeedQuizCard.displayName = 'FeedQuizCard'

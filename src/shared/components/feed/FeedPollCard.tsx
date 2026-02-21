@@ -19,12 +19,6 @@ export const FeedPollCard = ({ poll, onVote }: FeedPollCardProps) => {
   const animationTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
-    if (hasVoted) {
-      setDraftVotes([])
-    }
-  }, [hasVoted])
-
-  useEffect(() => {
     return () => {
       if (animationTimeoutRef.current !== null) {
         window.clearTimeout(animationTimeoutRef.current)

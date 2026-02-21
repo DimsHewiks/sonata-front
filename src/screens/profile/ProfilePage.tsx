@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useShallow } from 'zustand/shallow'
 
@@ -24,6 +24,9 @@ export const ProfilePage = () => {
   )
   const router = useRouter()
   const wallRef = useRef<ProfileWallSectionHandle | null>(null)
+  const handleCreatePost = useCallback(() => {
+    wallRef.current?.focusComposer()
+  }, [])
 
   useEffect(() => {
     if (status === 'idle') {
@@ -59,7 +62,7 @@ export const ProfilePage = () => {
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <ProfileHeaderSection
         user={user}
-        onCreatePost={() => wallRef.current?.focusComposer()}
+        onCreatePost={handleCreatePost}
       >
         <ProfileWallSection ref={wallRef} status={status} currentUser={user} />
       </ProfileHeaderSection>

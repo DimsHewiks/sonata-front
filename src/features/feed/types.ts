@@ -1,7 +1,12 @@
-import type { FeedComment, FeedItem } from '@/shared/types/profile'
+import type { FeedComment, FeedCommentReaction, FeedItem } from '@/shared/types/profile'
 
 export interface FeedListResponse {
   items: FeedItem[]
+}
+
+export interface FeedListQuery {
+  offset?: number
+  limit?: number
 }
 
 export interface FeedCreateResponse {
@@ -75,6 +80,23 @@ export interface FeedCommentCreateResponse {
 export interface FeedCommentDeleteResponse {
   deleted: boolean
   commentId?: string
+}
+
+export interface ToggleFeedCommentReactionPayload {
+  emoji: string
+}
+
+export interface FeedCommentReactionToggleResult {
+  commentId: string
+  reactions: FeedCommentReaction[]
+}
+
+export interface FeedCommentReactionToggleResponse {
+  result?: FeedCommentReactionToggleResult
+  item?: FeedCommentReactionToggleResult
+  data?: FeedCommentReactionToggleResult
+  commentId?: string
+  reactions?: FeedCommentReaction[]
 }
 
 export interface FeedMediaItem {

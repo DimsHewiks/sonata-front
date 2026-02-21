@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import type { ArticleDto, ArticleEmbed, ArticleType, ChordsNotation } from '@/shared/types/article'
-import { articlesApi } from '@/features/articles/api'
+import { articlesApi, type UpdateArticlePayload } from '@/features/articles/api'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import { getMediaUrl } from '@/shared/config/api'
 import { Alert, AlertDescription, AlertTitle } from '@/ui/widgets/alert'
@@ -32,6 +32,8 @@ import { EmojiPickerPopover } from '@/ui/widgets/emoji-picker'
 interface ArticleEditorPageProps {
   articleId: string
 }
+
+const IMAGE_EMBED_TOKEN = /@image\s+([a-zA-Z0-9_-]{6,})/gi
 
 export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
   const router = useRouter()
@@ -137,13 +139,13 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
 
   const previewContent = useMemo(() => body, [body])
 
-  const scheduleSave = () => {
+  const scheduleSave = useCallback(() => {
     if (debounceRef.current) {
       window.clearTimeout(debounceRef.current)
     }
 
     debounceRef.current = window.setTimeout(async () => {
-      const payload = {
+      const payload: UpdateArticlePayload = {
         title: title.trim(),
         type,
         format: 'markdown',
@@ -179,7 +181,7 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
         setSaving(false)
       }
     }, 900)
-  }
+  }, [articleId, body, coverMediaId, coverPosition, embeds, excerpt, notation, title, type])
 
   useEffect(() => {
     if (!article) {
@@ -193,7 +195,7 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
         window.clearTimeout(debounceRef.current)
       }
     }
-  }, [title, type, body, excerpt, notation, coverMediaId, coverPosition, embeds, article])
+  }, [article, scheduleSave])
 
   const handleInsert = (value: string) => {
     const textarea = bodyRef.current
@@ -300,24 +302,51 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
     handleWrap('`', '`', 'код')
   }
 
-  const handleListInsert = () => {
+  const handlePrefixLines = (prefix: string) => {
     const textarea = bodyRef.current
     const currentValue = textarea?.value ?? body
     const selectionStart = textarea?.selectionStart ?? currentValue.length
     const selectionEnd = textarea?.selectionEnd ?? currentValue.length
-    const needsNewline = selectionStart > 0 && currentValue[selectionStart - 1] !== '\n'
-    const prefix = needsNewline ? '\n- ' : '- '
+    const hasSelection = selectionEnd > selectionStart
+
+    if (!hasSelection) {
+      const needsNewline = selectionStart > 0 && currentValue[selectionStart - 1] !== '\n'
+      const insertion = needsNewline ? `\n${prefix}` : prefix
+      const nextValue =
+        currentValue.slice(0, selectionStart) + insertion + currentValue.slice(selectionEnd)
+
+      setBody(nextValue)
+      setEmbeds((prev) => syncEmbedsWithBody(nextValue, prev))
+
+      if (textarea) {
+        requestAnimationFrame(() => {
+          const cursor = selectionStart + insertion.length
+          textarea.focus()
+          textarea.setSelectionRange(cursor, cursor)
+        })
+      }
+
+      return
+    }
+
+    const selected = currentValue.slice(selectionStart, selectionEnd)
+    const prefixedSelected = selected
+      .split('\n')
+      .map((line) => `${prefix}${line}`)
+      .join('\n')
     const nextValue =
-      currentValue.slice(0, selectionStart) + prefix + currentValue.slice(selectionEnd)
+      currentValue.slice(0, selectionStart) + prefixedSelected + currentValue.slice(selectionEnd)
 
     setBody(nextValue)
     setEmbeds((prev) => syncEmbedsWithBody(nextValue, prev))
 
     if (textarea) {
       requestAnimationFrame(() => {
-        const cursor = selectionStart + prefix.length
         textarea.focus()
-        textarea.setSelectionRange(cursor, cursor)
+        textarea.setSelectionRange(
+          selectionStart,
+          selectionStart + prefixedSelected.length,
+        )
       })
     }
   }
@@ -353,7 +382,7 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
     setError(null)
     setSaving(true)
     try {
-      const response = await articlesApi.uploadMedia(file)
+      const response = await articlesApi.uploadCover(file)
       setCoverMediaId(response.media.mediaId)
       setCoverPreview(getMediaUrl(response.media.relativePath))
     } catch (uploadError) {
@@ -371,7 +400,7 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
     setError(null)
     setSaving(true)
     try {
-      const response = await articlesApi.uploadCover(file)
+      const response = await articlesApi.uploadMedia(file)
       const media = response.media
       setEmbeds((prev) => [
         ...prev,
@@ -382,8 +411,6 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
           position: 'inline',
           relativePath: media.relativePath,
           extension: media.extension,
-          width: media.width,
-          height: media.height,
         },
       ])
       handleInsert(`@image ${media.mediaId}\n`)
@@ -395,20 +422,33 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
   }
 
   const syncEmbedsWithBody = (nextBody: string, currentEmbeds: ArticleEmbed[]) => {
+    if (currentEmbeds.length === 0) {
+      return currentEmbeds
+    }
+
     const ids = new Set<string>()
-    const matcher = /@image\s+([a-f0-9-]{6,})/gi
+    const matcher = new RegExp(IMAGE_EMBED_TOKEN.source, IMAGE_EMBED_TOKEN.flags)
     let match: RegExpExecArray | null
 
     while ((match = matcher.exec(nextBody)) !== null) {
       ids.add(match[1].toLowerCase())
     }
 
-    return currentEmbeds.filter((embed) => {
+    const nextEmbeds = currentEmbeds.filter((embed) => {
       if (!embed.mediaId) {
         return false
       }
       return ids.has(embed.mediaId.toLowerCase())
     })
+
+    if (
+      nextEmbeds.length === currentEmbeds.length &&
+      nextEmbeds.every((embed, index) => embed === currentEmbeds[index])
+    ) {
+      return currentEmbeds
+    }
+
+    return nextEmbeds
   }
 
   const handlePublish = async () => {
@@ -723,7 +763,7 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
                     size="icon"
                     variant="outline"
                     className="text-blue-600"
-                    onClick={() => handleInsert('\n> ')}
+                    onClick={() => handlePrefixLines('> ')}
                   >
                     <Quote className="h-4 w-4" />
                   </Button>
@@ -732,7 +772,7 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
                     size="icon"
                     variant="outline"
                     className="text-amber-500"
-                    onClick={() => handleInsert('\n> 💡 ')}
+                    onClick={() => handlePrefixLines('> 💡 ')}
                   >
                     <Lightbulb className="h-4 w-4" />
                   </Button>
@@ -741,7 +781,7 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
                     size="icon"
                     variant="outline"
                     className="text-orange-600"
-                    onClick={handleListInsert}
+                    onClick={() => handlePrefixLines('- ')}
                   >
                     <List className="h-4 w-4" />
                   </Button>
@@ -750,7 +790,7 @@ export const ArticleEditorPage = ({ articleId }: ArticleEditorPageProps) => {
                     size="icon"
                     variant="outline"
                     className="text-indigo-600"
-                    onClick={() => handleInsert('\n## ')}
+                    onClick={() => handlePrefixLines('## ')}
                   >
                     <Heading2 className="h-4 w-4" />
                   </Button>

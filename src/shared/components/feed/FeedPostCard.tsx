@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useCallback } from 'react'
 import { Heart, Play, Share2 } from 'lucide-react'
 
 import type { FeedPost, PostMedia } from '@/shared/types/profile'
@@ -8,7 +9,7 @@ import { Button } from '@/ui/widgets/button'
 import { CardContent, CardFooter } from '@/ui/widgets/card'
 import { getMediaUrl } from '@/shared/config/api'
 import { isVideoExtension } from '@/shared/lib/media'
-import { FeedPostComments } from '@/screens/profile/components/feed/FeedPostComments'
+import { FeedPostComments } from '@/shared/components/feed/FeedPostComments'
 
 interface FeedPostCardProps {
   post: FeedPost
@@ -18,13 +19,24 @@ interface FeedPostCardProps {
   onSelectMedia: (media: PostMedia) => void
 }
 
-export const FeedPostCard = ({
+const FeedPostCardComponent = ({
   post,
   liked,
   onToggleLike,
   onCommentCountChange,
   onSelectMedia,
 }: FeedPostCardProps) => {
+  const handleToggleLike = useCallback(() => {
+    onToggleLike(post.id)
+  }, [onToggleLike, post.id])
+
+  const handleCommentCountChange = useCallback(
+    (delta: number) => {
+      onCommentCountChange(post.id, delta)
+    },
+    [onCommentCountChange, post.id],
+  )
+
   const likes = (post.stats?.likes ?? 0) + (liked ? 1 : 0)
   const comments = post.stats?.comments ?? 0
   const media = post.media ?? []
@@ -107,7 +119,7 @@ export const FeedPostCard = ({
           variant="ghost"
           size="sm"
           className={liked ? 'text-primary' : undefined}
-          onClick={() => onToggleLike(post.id)}
+          onClick={handleToggleLike}
         >
           <Heart className="h-4 w-4" />
           {likes}
@@ -115,7 +127,7 @@ export const FeedPostCard = ({
         <FeedPostComments
           feedId={post.id}
           commentsCount={comments}
-          onCommentCountChange={(delta) => onCommentCountChange(post.id, delta)}
+          onCommentCountChange={handleCommentCountChange}
         />
         <Button variant="ghost" size="sm">
           <Share2 className="h-4 w-4" />
@@ -125,3 +137,6 @@ export const FeedPostCard = ({
     </>
   )
 }
+
+export const FeedPostCard = memo(FeedPostCardComponent)
+FeedPostCard.displayName = 'FeedPostCard'

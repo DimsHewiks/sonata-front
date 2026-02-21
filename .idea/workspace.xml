@@ -5,30 +5,33 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="374c1823-6513-41c7-a807-4c04cdbf2098" name="Changes" comment="first">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/auth/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/auth/api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/auth/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/auth/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/globals.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/features/feed/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/feed/api.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/features/feed/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/feed/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/articles/ArticleEditorPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/articles/ArticleEditorPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/articles/ArticleViewPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/articles/ArticleViewPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/articles/components/ArticleContentRenderer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/articles/components/ArticleContentRenderer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/home/HomePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/home/HomePage.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/profile/ProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/ProfilePage.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ArticleDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ArticleDialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileDialogs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileDialogs.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileFeed.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileFeed.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileHeaderCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileHeaderCard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileHeaderSection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileHeaderSection.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileMediaCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileMediaCard.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/screens/profile/components/ProfileWallSection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/ProfileWallSection.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/composer/ComposerArticleForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/composer/ComposerArticleForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/composer/ComposerPostForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/composer/ComposerPostForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedArticleCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedArticleCard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedCommentsPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedCommentsPanel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPollCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPollCard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPostCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPostCard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPostComments.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPostComments.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/profile/profile-components.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/profile/profile-components.types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedArticleCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedCommentItem.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedCommentsPanel.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedHeader.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPollCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPostCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedPostComments.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedQuizCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/profile/components/feed/FeedTypeBadge.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/api/errors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/api/errors.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shared/types/profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/types/profile.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/widgets/drawer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/widgets/drawer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/widgets/markdown.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/widgets/markdown.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +43,7 @@
     <execution />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="287" />
+    <option name="cachedIndexableFilesCount" value="114" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -50,7 +53,7 @@
     <commands />
     <urls />
   </component>
-  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/bin/php">
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/usr/bin/php">
     <include_path>
       <path value="$PROJECT_DIR$/backend/vendor/symfony/finder" />
       <path value="$PROJECT_DIR$/backend/vendor/symfony/yaml" />
@@ -89,30 +92,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;js.debugger.nextJs.config.created.client&quot;: &quot;true&quot;,
-    &quot;js.debugger.nextJs.config.created.server&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/dimshewik/WebstormProjects/SonataFront&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/dimshewik/WebstormProjects/SonataFront/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "js.debugger.nextJs.config.created.client": "true",
+    "js.debugger.nextJs.config.created.server": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/home/dims/PhpstormProjects/sonata-front",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "/home/dims/PhpstormProjects/sonata-front/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="npm.Next.js: server-side">
     <configuration name="Next.js: debug client-side" type="JavascriptDebugType" uri="http://localhost:3000/">
       <method v="2" />
@@ -148,6 +151,7 @@
       <workItem from="1770897014243" duration="12802000" />
       <workItem from="1770991593973" duration="29125000" />
       <workItem from="1771204974092" duration="1028000" />
+      <workItem from="1771591857542" duration="9612000" />
     </task>
     <task id="LOCAL-00001" summary="first">
       <option name="closed" value="true" />

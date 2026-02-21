@@ -9,14 +9,18 @@ import type {
   FeedCommentCreateResponse,
   FeedCommentDeleteResponse,
   FeedCommentListResponse,
+  FeedCommentReactionToggleResponse,
+  FeedCommentReactionToggleResult,
   FeedCommentsOrder,
   FeedCreateResponse,
   FeedDeleteResponse,
+  FeedListQuery,
   FeedListResponse,
   FeedMediaResponse,
   QuizAnswerPayload,
   QuizAnswerResponse,
   QuizAnswerResult,
+  ToggleFeedCommentReactionPayload,
 } from '@/features/feed/types'
 
 const normalizeFeedItem = (item: FeedItem): FeedItem => {
@@ -40,9 +44,37 @@ const normalizeFeedItem = (item: FeedItem): FeedItem => {
 }
 
 const normalizeComment = (comment: FeedComment): FeedComment => {
+  const normalizedReactions = (comment.reactions ?? [])
+    .map((reaction) => ({
+      emoji: reaction.emoji,
+      count: Number.isFinite(reaction.count) ? Math.max(0, Math.floor(reaction.count)) : 0,
+      active: Boolean(reaction.active),
+    }))
+    .filter((reaction) => reaction.emoji)
+
   return {
     ...comment,
+    reactions: normalizedReactions,
     children: (comment.children ?? []).map(normalizeComment),
+  }
+}
+
+const normalizeCommentReactionToggleResult = (
+  payload: FeedCommentReactionToggleResult | null | undefined,
+): FeedCommentReactionToggleResult | null => {
+  if (!payload || typeof payload.commentId !== 'string') {
+    return null
+  }
+
+  return {
+    commentId: payload.commentId,
+    reactions: (payload.reactions ?? [])
+      .map((reaction) => ({
+        emoji: reaction.emoji,
+        count: Number.isFinite(reaction.count) ? Math.max(0, Math.floor(reaction.count)) : 0,
+        active: Boolean(reaction.active),
+      }))
+      .filter((reaction) => reaction.emoji),
   }
 }
 
@@ -58,9 +90,33 @@ const isFeedComment = (value: unknown): value is FeedComment => {
   return typeof value.id === 'string'
 }
 
+const normalizeFeedListQuery = (query?: FeedListQuery): Record<string, number> => {
+  if (!query) {
+    return {}
+  }
+
+  const params: Record<string, number> = {}
+  if (typeof query.offset === 'number' && Number.isFinite(query.offset) && query.offset >= 0) {
+    params.offset = Math.floor(query.offset)
+  }
+  if (typeof query.limit === 'number' && Number.isFinite(query.limit) && query.limit > 0) {
+    params.limit = Math.floor(query.limit)
+  }
+
+  return params
+}
+
 export const feedApi = {
-  list: async (): Promise<FeedItem[]> => {
-    const response = await apiClient.get<FeedListResponse>('/feed')
+  list: async (query?: FeedListQuery): Promise<FeedItem[]> => {
+    const response = await apiClient.get<FeedListResponse>('/feed', {
+      params: normalizeFeedListQuery(query),
+    })
+    return response.data.items.map(normalizeFeedItem)
+  },
+  listAll: async (query?: FeedListQuery): Promise<FeedItem[]> => {
+    const response = await apiClient.get<FeedListResponse>('/feed/all', {
+      params: normalizeFeedListQuery(query),
+    })
     return response.data.items.map(normalizeFeedItem)
   },
   deleteItem: async (feedId: string): Promise<FeedDeleteResponse> => {
@@ -148,6 +204,33 @@ export const feedApi = {
   deleteComment: async (commentId: string): Promise<FeedCommentDeleteResponse> => {
     const response = await apiClient.delete<FeedCommentDeleteResponse>(`/comments/${commentId}`)
     return response.data
+  },
+  toggleCommentReaction: async (
+    commentId: string,
+    payload: ToggleFeedCommentReactionPayload,
+  ): Promise<FeedCommentReactionToggleResult> => {
+    const response = await apiClient.post<FeedCommentReactionToggleResponse>(
+      `/comments/${commentId}/reactions/toggle`,
+      payload,
+    )
+
+    const normalized = normalizeCommentReactionToggleResult(
+      response.data.result ??
+        response.data.item ??
+        response.data.data ??
+        (response.data.commentId
+          ? {
+              commentId: response.data.commentId,
+              reactions: response.data.reactions ?? [],
+            }
+          : null),
+    )
+
+    if (!normalized) {
+      throw new Error('Сервер не вернул обновленные реакции комментария')
+    }
+
+    return normalized
   },
   listMedia: async (): Promise<FeedMediaResponse> => {
     const response = await apiClient.get<FeedMediaResponse>('/feed/media')

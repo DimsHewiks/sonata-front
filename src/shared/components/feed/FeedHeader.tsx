@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Loader2, MoreHorizontal } from 'lucide-react'
+import { memo, useCallback, useState } from 'react'
+import { Link2, Loader2, MoreHorizontal, Trash2 } from 'lucide-react'
 
 import type { PostAuthor, FeedItem } from '@/shared/types/profile'
 import { getApiErrorMessage } from '@/shared/api/errors'
@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/ui/widgets/dropdown-menu'
-import { FeedTypeBadge } from '@/screens/profile/components/feed/FeedTypeBadge'
+import { FeedTypeBadge } from '@/shared/components/feed/FeedTypeBadge'
 
 interface FeedHeaderProps {
   itemId: string
@@ -32,14 +32,16 @@ interface FeedHeaderProps {
   author: PostAuthor
   createdAt: string
   onDelete: (itemId: string) => Promise<void>
+  canDelete?: boolean
 }
 
-export const FeedHeader = ({
+const FeedHeaderComponent = ({
   itemId,
   type,
   author,
   createdAt,
   onDelete,
+  canDelete = true,
 }: FeedHeaderProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -49,11 +51,11 @@ export const FeedHeader = ({
     ? getMediaUrl(author.avatar.relative_path)
     : undefined
 
-  const handleCopyLink = () => {
+  const handleCopyLink = useCallback(() => {
     void navigator.clipboard.writeText(`https://sonata.ru/feed/${itemId}`)
-  }
+  }, [itemId])
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = useCallback(async () => {
     setDeleteError(null)
     setIsDeleting(true)
 
@@ -65,7 +67,7 @@ export const FeedHeader = ({
     } finally {
       setIsDeleting(false)
     }
-  }
+  }, [itemId, onDelete])
 
   return (
     <>
@@ -92,56 +94,69 @@ export const FeedHeader = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleCopyLink}>Скопировать ссылку</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive"
-              onClick={() => setIsDeleteDialogOpen(true)}
-            >
-              Удалить
+            <DropdownMenuItem onClick={handleCopyLink} className="text-sky-700 focus:text-sky-700">
+              <Link2 className="h-4 w-4" />
+              Скопировать ссылку
             </DropdownMenuItem>
+            {canDelete ? (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Удалить
+                </DropdownMenuItem>
+              </>
+            ) : null}
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
 
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-base">Удалить пост?</DialogTitle>
-            <DialogDescription>
-              Это действие нельзя отменить.
-            </DialogDescription>
-          </DialogHeader>
-          {deleteError ? (
-            <p className="text-sm text-destructive">{deleteError}</p>
-          ) : null}
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setIsDeleteDialogOpen(false)}
-              disabled={isDeleting}
-            >
-              Отмена
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDeleteConfirm}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Удаляем...
-                </>
-              ) : (
-                'Удалить'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {canDelete ? (
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="text-base">Удалить пост?</DialogTitle>
+              <DialogDescription>
+                Это действие нельзя отменить.
+              </DialogDescription>
+            </DialogHeader>
+            {deleteError ? (
+              <p className="text-sm text-destructive">{deleteError}</p>
+            ) : null}
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsDeleteDialogOpen(false)}
+                disabled={isDeleting}
+              >
+                Отмена
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Удаляем...
+                  </>
+                ) : (
+                  'Удалить'
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </>
   )
 }
+
+export const FeedHeader = memo(FeedHeaderComponent)
+FeedHeader.displayName = 'FeedHeader'

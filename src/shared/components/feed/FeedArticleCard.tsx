@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import Link from 'next/link'
+import { BookOpen, Clock3, PencilLine } from 'lucide-react'
 
 import type { FeedArticle } from '@/shared/types/profile'
 import { getMediaUrl } from '@/shared/config/api'
@@ -16,14 +17,14 @@ interface FeedArticleCardProps {
   currentUser?: { login: string } | null
 }
 
-export const FeedArticleCard = ({ article, onOpen, currentUser }: FeedArticleCardProps) => {
-
+const FeedArticleCardComponent = ({ article, onOpen, currentUser }: FeedArticleCardProps) => {
+  const coverRelativePath = article.cover?.relative_path ?? null
   const coverUrl = useMemo(() => {
-    if (!article.cover?.relative_path) {
+    if (!coverRelativePath) {
       return null
     }
-    return getMediaUrl(article.cover.relative_path)
-  }, [article.cover?.relative_path])
+    return getMediaUrl(coverRelativePath)
+  }, [coverRelativePath])
 
   const coverPositionY = article.cover?.position?.y ?? 0.5
 
@@ -35,6 +36,9 @@ export const FeedArticleCard = ({ article, onOpen, currentUser }: FeedArticleCar
     const rawId = article.articleId ?? article.id
     return rawId.startsWith('article-') ? rawId.replace('article-', '') : rawId
   }, [article.articleId, article.id])
+  const handleOpen = useCallback(() => {
+    onOpen(article)
+  }, [article, onOpen])
 
   return (
     <CardContent
@@ -50,6 +54,8 @@ export const FeedArticleCard = ({ article, onOpen, currentUser }: FeedArticleCar
             alt={article.title}
             className="absolute inset-0 h-full w-full object-cover blur-sm"
             data-parallax-img
+            loading="lazy"
+            decoding="async"
             style={{ objectPosition: `50% ${coverPositionY * 100}%` }}
           />
           <div className="absolute inset-0 bg-black/35" />
@@ -72,14 +78,31 @@ export const FeedArticleCard = ({ article, onOpen, currentUser }: FeedArticleCar
         <p className="line-clamp-3 text-sm text-muted-foreground">{article.description}</p>
       ) : null}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs text-muted-foreground">{article.readTime}</span>
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <Clock3 className="h-3.5 w-3.5 text-primary/80" />
+          {article.readTime}
+        </span>
         <div className="flex items-center gap-2">
           {canEdit ? (
-            <Button size="sm" variant="ghost" asChild>
-              <Link href={`/articles/${articleId}/edit`}>Редактировать</Link>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-amber-700 hover:bg-amber-100 hover:text-amber-700"
+              asChild
+            >
+              <Link href={`/articles/${articleId}/edit`}>
+                <PencilLine className="h-4 w-4" />
+                Редактировать
+              </Link>
             </Button>
           ) : null}
-          <Button size="sm" variant="outline" onClick={() => onOpen(article)}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleOpen}
+            className="border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary"
+          >
+            <BookOpen className="h-4 w-4" />
             Читать
           </Button>
         </div>
@@ -87,3 +110,6 @@ export const FeedArticleCard = ({ article, onOpen, currentUser }: FeedArticleCar
     </CardContent>
   )
 }
+
+export const FeedArticleCard = memo(FeedArticleCardComponent)
+FeedArticleCard.displayName = 'FeedArticleCard'

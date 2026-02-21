@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
@@ -25,7 +26,7 @@ interface MarkdownProps {
   className?: string
 }
 
-export const Markdown = ({ content, className }: MarkdownProps) => {
+const MarkdownComponent = ({ content, className }: MarkdownProps) => {
   return (
     <div className={cn('article-content space-y-3 text-[18px] leading-[1.8] text-foreground/90', className)}>
       <ReactMarkdown
@@ -147,28 +148,50 @@ export const Markdown = ({ content, className }: MarkdownProps) => {
               className={cn('my-12 h-px border-0 bg-gradient-to-r from-transparent via-border to-transparent', hrClass)}
             />
           ),
-          code: ({ className: codeClass, inline, ...props }) =>
-            inline ? (
-              <code
-                {...props}
-                className={cn(
-                  'inline-block whitespace-pre-wrap rounded-sm border border-border/60 bg-muted/30 px-1.5 py-0.5 font-mono text-[0.8em] text-foreground/90',
-                  codeClass,
-                )}
-              />
-            ) : (
+          code: ({ className: codeClass, children, node, ...props }) => {
+            const codeContent = String(children ?? '')
+            const isBlockCode =
+              Boolean(codeClass?.includes('language-')) ||
+              codeContent.includes('\n') ||
+              (node?.position
+                ? node.position.start.line !== node.position.end.line
+                : false)
+
+            if (!isBlockCode) {
+              return (
+                <code
+                  {...props}
+                  className={cn(
+                    'inline-block whitespace-pre-wrap rounded-sm border border-border/60 bg-muted/30 px-1.5 py-0.5 font-mono text-[0.8em] text-foreground/90',
+                    codeClass,
+                  )}
+                >
+                  {children}
+                </code>
+              )
+            }
+
+            const normalizedContent =
+              codeContent.endsWith('\n')
+                ? codeContent.slice(0, -1)
+                : codeContent
+
+            return (
               <pre
-                className={cn(
-                  'my-6 overflow-x-auto rounded-sm border border-border/60 bg-muted/20 p-4',
-                  codeClass,
-                )}
+                className="my-6 max-w-full overflow-x-auto rounded-sm border border-border/60 bg-muted/20 p-4"
               >
                 <code
                   {...props}
-                  className="block whitespace-pre text-[0.85em] leading-6 text-foreground/90"
-                />
+                  className={cn(
+                    'block whitespace-pre-wrap break-words font-mono text-[0.85em] leading-6 text-foreground/90',
+                    codeClass,
+                  )}
+                >
+                  {normalizedContent}
+                </code>
               </pre>
-            ),
+            )
+          },
         }}
       >
         {content}
@@ -176,3 +199,6 @@ export const Markdown = ({ content, className }: MarkdownProps) => {
     </div>
   )
 }
+
+export const Markdown = memo(MarkdownComponent)
+Markdown.displayName = 'Markdown'

@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 
-import type { ArticleDto } from '@/shared/types/article'
+import type { ArticleDto, ChordsNotation } from '@/shared/types/article'
 import { articlesApi } from '@/features/articles/api'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import { getMediaUrl } from '@/shared/config/api'
@@ -19,40 +19,82 @@ interface ArticleViewPageProps {
 
 export const ArticleViewPage = ({ articleId }: ArticleViewPageProps) => {
   const user = useAuthStore((state) => state.user)
-  const [article, setArticle] = useState<ArticleDto | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [transpose, setTranspose] = useState(0)
-  const [showChords, setShowChords] = useState(true)
-  const [notation, setNotation] = useState<'standard' | 'german'>('standard')
+  const [articleRequest, setArticleRequest] = useState<{
+    articleId: string
+    article: ArticleDto | null
+    error: string | null
+  } | null>(null)
+  const [transposeByArticleId, setTransposeByArticleId] = useState<Record<string, number>>({})
+  const [showChordsByArticleId, setShowChordsByArticleId] = useState<Record<string, boolean>>({})
+  const [notationByArticleId, setNotationByArticleId] = useState<Record<string, ChordsNotation>>({})
 
   useEffect(() => {
     let isActive = true
-    setLoading(true)
-    setError(null)
 
     articlesApi
       .getById(articleId)
       .then((data) => {
         if (isActive) {
-          setArticle(data)
-          setNotation(data.chordsNotation ?? 'standard')
+          setArticleRequest({ articleId, article: data, error: null })
         }
       })
       .catch((fetchError) => {
         if (isActive) {
-          setError(getApiErrorMessage(fetchError))
-        }
-      })
-      .finally(() => {
-        if (isActive) {
-          setLoading(false)
+          setArticleRequest({
+            articleId,
+            article: null,
+            error: getApiErrorMessage(fetchError),
+          })
         }
       })
 
     return () => {
       isActive = false
     }
+  }, [articleId])
+
+  const isCurrentRequest = articleRequest?.articleId === articleId
+  const loading = !isCurrentRequest
+  const article = isCurrentRequest ? articleRequest?.article ?? null : null
+  const error = isCurrentRequest ? articleRequest?.error ?? null : null
+
+  const transpose = transposeByArticleId[articleId] ?? 0
+  const showChords = showChordsByArticleId[articleId] ?? true
+  const notation = notationByArticleId[articleId] ?? article?.chordsNotation ?? 'standard'
+
+  const handleTranspose = useCallback((delta: number) => {
+    setTransposeByArticleId((prev) => {
+      const current = prev[articleId] ?? 0
+      const next = Math.max(-12, Math.min(12, current + delta))
+      if (next === current) {
+        return prev
+      }
+
+      return {
+        ...prev,
+        [articleId]: next,
+      }
+    })
+  }, [articleId])
+
+  const handleToggleChords = useCallback(() => {
+    setShowChordsByArticleId((prev) => ({
+      ...prev,
+      [articleId]: !(prev[articleId] ?? true),
+    }))
+  }, [articleId])
+
+  const handleNotationChange = useCallback((nextNotation: ChordsNotation) => {
+    setNotationByArticleId((prev) => {
+      if (prev[articleId] === nextNotation) {
+        return prev
+      }
+
+      return {
+        ...prev,
+        [articleId]: nextNotation,
+      }
+    })
   }, [articleId])
 
   const coverUrl = article?.cover?.relativePath
@@ -121,7 +163,7 @@ export const ArticleViewPage = ({ articleId }: ArticleViewPageProps) => {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => setTranspose((prev) => Math.max(prev - 1, -12))}
+              onClick={() => handleTranspose(-1)}
             >
               Transpose -
             </Button>
@@ -129,7 +171,7 @@ export const ArticleViewPage = ({ articleId }: ArticleViewPageProps) => {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => setTranspose((prev) => Math.min(prev + 1, 12))}
+              onClick={() => handleTranspose(1)}
             >
               Transpose +
             </Button>
@@ -137,7 +179,7 @@ export const ArticleViewPage = ({ articleId }: ArticleViewPageProps) => {
               type="button"
               size="sm"
               variant={showChords ? 'default' : 'outline'}
-              onClick={() => setShowChords((prev) => !prev)}
+              onClick={handleToggleChords}
             >
               {showChords ? 'Скрыть аккорды' : 'Показать аккорды'}
             </Button>
@@ -146,7 +188,7 @@ export const ArticleViewPage = ({ articleId }: ArticleViewPageProps) => {
                 type="button"
                 size="sm"
                 variant={notation === 'standard' ? 'default' : 'ghost'}
-                onClick={() => setNotation('standard')}
+                onClick={() => handleNotationChange('standard')}
               >
                 Standard
               </Button>
@@ -154,7 +196,7 @@ export const ArticleViewPage = ({ articleId }: ArticleViewPageProps) => {
                 type="button"
                 size="sm"
                 variant={notation === 'german' ? 'default' : 'ghost'}
-                onClick={() => setNotation('german')}
+                onClick={() => handleNotationChange('german')}
               >
                 German
               </Button>

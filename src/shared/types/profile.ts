@@ -43,9 +43,19 @@ export interface FeedComment {
   parentId?: string | null
   author: PostAuthor
   createdAt: string
+  editedAt?: string | null
+  deletedAt?: string | null
+  isDeleted?: boolean
   text?: string
   media?: MediaFile[]
+  reactions?: FeedCommentReaction[]
   children: FeedComment[]
+}
+
+export interface FeedCommentReaction {
+  emoji: string
+  count: number
+  active?: boolean
 }
 
 export interface FeedPollOption {
